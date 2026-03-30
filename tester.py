@@ -19,7 +19,7 @@ def test(args):
     net = utility.get_net(config)
     model_path = os.path.join(config.model_dir,
                               "train.pkl") if args.pretrained_weight is None else args.pretrained_weight
-    if args.device_ids == [-1]:
+    if config.device.type != "cuda":
         checkpoint = torch.load(model_path, map_location="cpu")
     else:
         checkpoint = torch.load(model_path)

@@ -103,18 +103,17 @@ class Alignment:
             self.config.device_id = device_ids[0]
             # set environment
             utility.set_environment(self.config)
-            self.config.init_instance()
             if self.config.logger is not None:
                 self.config.logger.info("Loaded configure file %s: %s" % (args.config_name, self.config.id))
                 self.config.logger.info("\n" + "\n".join(["%s: %s" % item for item in self.config.__dict__.items()]))
 
             net = utility.get_net(self.config)
-            if device_ids == [-1]:
+            if self.config.device.type != "cuda":
                 checkpoint = torch.load(model_path, map_location="cpu")
             else:
                 checkpoint = torch.load(model_path)
             net.load_state_dict(checkpoint["net"])
-            net = net.to(self.config.device_id)
+            net = net.to(self.config.device)
             net.eval()
             self.alignment = net
         else:
@@ -149,7 +148,7 @@ class Alignment:
         input_tensor = torch.from_numpy(input_tensor)
         input_tensor = input_tensor.float().permute(0, 3, 1, 2)
         input_tensor = input_tensor / 255.0 * 2.0 - 1.0
-        input_tensor = input_tensor.to(self.config.device_id)
+        input_tensor = input_tensor.to(self.config.device)
         return input_tensor, matrix
 
     def postprocess(self, srcPoints, coeff):

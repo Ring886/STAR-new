@@ -2,3 +2,11 @@ model
 image_dir
 out_dir
 .idea
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.DS_Store

@@ -16,6 +16,9 @@ os.environ["MKL_THREADING_LAYER"] = "GNU"
 def train(args):
     device_ids = args.device_ids
     nprocs = len(device_ids)
+    if nprocs > 1 and not torch.cuda.is_available():
+        nprocs = 1
+        device_ids = [device_ids[0]]
     if nprocs > 1:
         torch.multiprocessing.spawn(
             train_worker, args=(nprocs, 1, args), nprocs=nprocs,
@@ -29,7 +32,7 @@ def train(args):
 def train_worker(world_rank, world_size, nodes_size, args):
     # initialize config.
     config = utility.get_config(args)
-    config.device_id = world_rank if nodes_size == 1 else world_rank % torch.cuda.device_count()
+    config.device_id = world_rank
     # set environment
     utility.set_environment(config)
     # initialize instances, such as writer, logger and wandb.
@@ -82,7 +85,10 @@ def train_worker(world_rank, world_size, nodes_size, args):
             pretrained_weight = args.pretrained_weight
 
         try:
-            checkpoint = torch.load(pretrained_weight)
+            if config.device.type == "cuda":
+                checkpoint = torch.load(pretrained_weight)
+            else:
+                checkpoint = torch.load(pretrained_weight, map_location="cpu")
             net.load_state_dict(checkpoint["net"], strict=False)
             if net_ema is not None:
                 net_ema.load_state_dict(checkpoint["net_ema"], strict=False)

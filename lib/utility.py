@@ -175,10 +175,16 @@ def get_criterions(config):
 
 def set_environment(config):
     if config.device_id >= 0:
-        assert torch.cuda.is_available() and torch.cuda.device_count() > config.device_id
-        torch.cuda.empty_cache()
-        config.device = torch.device("cuda", config.device_id)
-        config.use_gpu = True
+        if torch.cuda.is_available() and torch.cuda.device_count() > config.device_id:
+            torch.cuda.empty_cache()
+            config.device = torch.device("cuda", config.device_id)
+            config.use_gpu = True
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+            config.device = torch.device("mps")
+            config.use_gpu = True
+        else:
+            config.device = torch.device("cpu")
+            config.use_gpu = False
     else:
         config.device = torch.device("cpu")
         config.use_gpu = False
@@ -186,7 +192,8 @@ def set_environment(config):
     torch.set_default_dtype(torch.float32)
     torch.set_default_tensor_type(torch.FloatTensor)
     torch.set_flush_denormal(True)  # ignore extremely small value
-    torch.backends.cudnn.benchmark = True  # This flag allows you to enable the inbuilt cudnn auto-tuner to find the best algorithm to use for your hardware.
+    if config.device.type == "cuda":
+        torch.backends.cudnn.benchmark = True
     torch.autograd.set_detect_anomaly(True)
 
 
