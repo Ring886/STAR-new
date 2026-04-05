@@ -5,8 +5,14 @@ import dlib
 import math
 import argparse
 import numpy as np
-import gradio as gr
-from matplotlib import pyplot as plt
+try:
+    import gradio as gr
+except ModuleNotFoundError:
+    gr = None
+try:
+    from matplotlib import pyplot as plt
+except ModuleNotFoundError:
+    plt = None
 import torch
 # private package
 from lib import utility
@@ -91,7 +97,7 @@ class TransformPoints2D():
 
 
 class Alignment:
-    def __init__(self, args, model_path, dl_framework, device_ids):
+    def __init__(self, args, model_path, dl_framework, device_ids, enable_logging=False):
         self.input_size = 256
         self.target_face_scale = 1.0
         self.dl_framework = dl_framework
@@ -103,18 +109,22 @@ class Alignment:
             self.config.device_id = device_ids[0]
             # set environment
             utility.set_environment(self.config)
-            self.config.init_instance()
+            print("inference device:", self.config.device)
+            # self.config.init_instance()
+            if enable_logging:
+                self.config.init_instance()
             if self.config.logger is not None:
                 self.config.logger.info("Loaded configure file %s: %s" % (args.config_name, self.config.id))
                 self.config.logger.info("\n" + "\n".join(["%s: %s" % item for item in self.config.__dict__.items()]))
 
             net = utility.get_net(self.config)
-            if device_ids == [-1]:
-                checkpoint = torch.load(model_path, map_location="cpu")
-            else:
-                checkpoint = torch.load(model_path)
+            # if device_ids == [-1]:
+            #     checkpoint = torch.load(model_path, map_location="cpu")
+            # else:
+            #     checkpoint = torch.load(model_path)
+            checkpoint = torch.load(model_path, map_location="cpu")
             net.load_state_dict(checkpoint["net"])
-            net = net.to(self.config.device_id)
+            net = net.to(self.config.device)
             net.eval()
             self.alignment = net
         else:
@@ -149,7 +159,7 @@ class Alignment:
         input_tensor = torch.from_numpy(input_tensor)
         input_tensor = input_tensor.float().permute(0, 3, 1, 2)
         input_tensor = input_tensor / 255.0 * 2.0 - 1.0
-        input_tensor = input_tensor.to(self.config.device_id)
+        input_tensor = input_tensor.to(self.config.device)
         return input_tensor, matrix
 
     def postprocess(self, srcPoints, coeff):
@@ -179,7 +189,7 @@ class Alignment:
         return landmarks
 
 
-def draw_pts(img, pts, mode="pts", shift=4, color=(0, 255, 0), radius=1, thickness=1, save_path=None, dif=0,
+def draw_pts(img, pts, mode="pts", shift=4, color=(0, 255, 0), radius=2, thickness=1, save_path=None, dif=0,
              scale=0.3, concat=False, ):
     img_draw = copy.deepcopy(img)
     for cnt, p in enumerate(pts):
@@ -204,6 +214,7 @@ def draw_pts(img, pts, mode="pts", shift=4, color=(0, 255, 0), radius=1, thickne
 
 def process(input_image):
     image_draw = copy.deepcopy(input_image)
+    draw_radius = max(2, int(round(max(input_image.shape[0], input_image.shape[1]) / 512.0)))
     dets = detector(input_image, 1)
 
     num_faces = len(dets)
@@ -230,37 +241,67 @@ def process(input_image):
         scale, center_w, center_h = float(scale), float(center_w), float(center_h)
         landmarks_pv = alignment.analyze(input_image, scale, center_w, center_h)
         results.append(landmarks_pv)
-        image_draw = draw_pts(image_draw, landmarks_pv)
+        image_draw = draw_pts(image_draw, landmarks_pv, radius=draw_radius)
     return image_draw, results
 
 
 if __name__ == '__main__':
+    cli_parser = argparse.ArgumentParser()
+    cli_parser.add_argument("--predictor_path", type=str, default="/path/to/shape_predictor_68_face_landmarks.dat")
+    cli_parser.add_argument("--model_path", type=str, default="/path/to/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl")
+    cli_parser.add_argument("--data_definition", type=str, default="WFLW")
+    cli_parser.add_argument("--device_ids", type=str, default="0")
+    cli_parser.add_argument("--my_image_path", type=str, default="/path/to/face/image/bald_guys.jpg")
+    cli_parser.add_argument("--out_image_path", type=str, default="out_image.png")
+    cli_parser.add_argument("--enable_logging", action="store_true")
+    cli_args = cli_parser.parse_args()
+
     # face detector
     # could be downloaded in this repo: https://github.com/italojs/facial-landmarks-recognition/tree/master
-    predictor_path = '/path/to/shape_predictor_68_face_landmarks.dat'
+    # predictor_path = '/path/to/shape_predictor_68_face_landmarks.dat'
+    predictor_path = cli_args.predictor_path
     detector = dlib.get_frontal_face_detector()
     sp = dlib.shape_predictor(predictor_path)
 
     # facial landmark detector
     args = argparse.Namespace()
     args.config_name = 'alignment'
+    args.data_definition = cli_args.data_definition
     # could be downloaded here: https://drive.google.com/file/d/1aOx0wYEZUfBndYy_8IYszLPG_D2fhxrT/view
-    model_path = '/path/to/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'
-    device_ids = '0'
+    # model_path = '/path/to/WFLW_STARLoss_NME_4_02_FR_2_32_AUC_0_605.pkl'
+    model_path = cli_args.model_path
+    # device_ids = '0'
+    device_ids = cli_args.device_ids
+    # enable_logging = False
+    enable_logging = cli_args.enable_logging
     device_ids = list(map(int, device_ids.split(",")))
-    alignment = Alignment(args, model_path, dl_framework="pytorch", device_ids=device_ids)
+    alignment = Alignment(args, model_path, dl_framework="pytorch", device_ids=device_ids,
+                          enable_logging=enable_logging)
 
     # image:      input image
     # image_draw: draw the detected facial landmarks on image
     # results:    a list of detected facial landmarks
-    face_file_path = '/path/to/face/image/bald_guys.jpg'
-    image = cv2.imread(face_file_path)
+    # my_image_path = '/path/to/face/image/bald_guys.jpg'
+    my_image_path = cli_args.my_image_path
+    if not os.path.isabs(my_image_path):
+        my_image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), my_image_path)
+    out_image_path = cli_args.out_image_path
+    if not os.path.isabs(out_image_path):
+        out_image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), out_image_path)
+    image = cv2.imread(my_image_path)
+    if image is None:
+        raise FileNotFoundError(my_image_path)
     image_draw, results = process(image)
+    out_dir = os.path.dirname(out_image_path)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+    cv2.imwrite(out_image_path, image_draw)
 
     # visualize
-    img = cv2.cvtColor(image_draw, cv2.COLOR_BGR2RGB)
-    plt.imshow(img)
-    plt.show()
+    if plt is not None:
+        img = cv2.cvtColor(image_draw, cv2.COLOR_BGR2RGB)
+        plt.imshow(img)
+        plt.show()
 
     # demo
     # interface = gr.Interface(fn=process, inputs="image", outputs="image")
