@@ -33,7 +33,7 @@ class Alignment(Base):
 
         # scheduler & optimizer
         self.milestones = [200, 350, 450]
-        self.max_epoch = 500
+        self.max_epoch = 100
         self.optimizer = "adam"
         self.learn_rate = 0.001
         self.weight_decay = 0.00001
@@ -41,7 +41,7 @@ class Alignment(Base):
         self.gamma = 0.1
 
         # batch_size & workers
-        self.batch_size = 32
+        self.batch_size = 64
         self.train_num_workers = 16
         self.val_batch_size = 32
         self.val_num_workers = 16

@@ -48,6 +48,25 @@ class Activation(nn.Module):
         return f'kind={self.kind}, channel={self.channel}'
 
 
+
+class SEBlock(nn.Module):
+    def __init__(self, channel, reduction=16):
+        super(SEBlock, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channel, channel // reduction, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(channel // reduction, channel, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1)
+        return x * y.expand_as(x)
+
+
 class ConvBlock(nn.Module):
     def __init__(self, inp_dim, out_dim, kernel_size=3, stride=1, bn=False, relu=True, groups=1):
         super(ConvBlock, self).__init__()
@@ -82,6 +101,7 @@ class ResBlock(nn.Module):
         self.conv2 = ConvBlock(mid_dim, mid_dim, 3, relu=False)
         self.bn3 = nn.BatchNorm2d(mid_dim)
         self.conv3 = ConvBlock(mid_dim, out_dim, 1, relu=False)
+        self.se = SEBlock(out_dim)
         self.skip_layer = ConvBlock(inp_dim, out_dim, 1, relu=False)
         if inp_dim == out_dim:
             self.need_skip = False
@@ -102,12 +122,13 @@ class ResBlock(nn.Module):
         out = self.bn3(out)
         out = self.relu(out)
         out = self.conv3(out)
+        out = self.se(out)
         out += residual
         return out
 
 
 class Hourglass(nn.Module):
-    def __init__(self, n, f, increase=0, up_mode='nearest',
+    def __init__(self, n, f, increase=0, up_mode='bilinear',
                  add_coord=False, first_one=False, x_dim=64, y_dim=64):
         super(Hourglass, self).__init__()
         nf = f + increase
