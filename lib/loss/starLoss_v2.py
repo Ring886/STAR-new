@@ -63,12 +63,8 @@ class STARLoss_v2(nn.Module):
         batch_size, num_points, height, width = htp.shape
 
         yv, xv = self._make_grid(height, width)
-        xv = Variable(xv)
-        yv = Variable(yv)
-
-        if htp.is_cuda:
-            xv = xv.cuda()
-            yv = yv.cuda()
+        xv = Variable(xv).to(htp.device)
+        yv = Variable(yv).to(htp.device)
 
         xmean = means[:, :, 0]
         xv_minus_mean = xv.expand(batch_size, num_points, -1, -1) - expand_two_dimensions_at_end(xmean, height,
