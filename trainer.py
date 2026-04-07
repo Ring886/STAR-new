@@ -15,24 +15,30 @@ os.environ["MKL_THREADING_LAYER"] = "GNU"
 
 def train(args):
     device_ids = args.device_ids
-    nprocs = len(device_ids)
-    if nprocs > 1 and not torch.cuda.is_available():
-        nprocs = 1
+    if torch.cuda.is_available():
+        valid_device_ids = [device_id for device_id in device_ids if 0 <= device_id < torch.cuda.device_count()]
+    else:
+        valid_device_ids = []
+    if len(valid_device_ids) == 0:
         device_ids = [device_ids[0]]
+        nprocs = 1
+    else:
+        device_ids = valid_device_ids
+        nprocs = len(device_ids)
     if nprocs > 1:
         torch.multiprocessing.spawn(
-            train_worker, args=(nprocs, 1, args), nprocs=nprocs,
+            train_worker, args=(nprocs, 1, args, device_ids), nprocs=nprocs,
             join=True)
     elif nprocs == 1:
-        train_worker(device_ids[0], nprocs, 1, args)
+        train_worker(0, nprocs, 1, args, device_ids)
     else:
         assert False
 
 
-def train_worker(world_rank, world_size, nodes_size, args):
+def train_worker(world_rank, world_size, nodes_size, args, device_ids):
     # initialize config.
     config = utility.get_config(args)
-    config.device_id = world_rank
+    config.device_id = device_ids[world_rank]
     # set environment
     utility.set_environment(config)
     # initialize instances, such as writer, logger and wandb.
@@ -48,7 +54,7 @@ def train_worker(world_rank, world_size, nodes_size, args):
         torch.distributed.init_process_group(
             backend="nccl", init_method="tcp://localhost:23456" if nodes_size == 1 else "env://",
             rank=world_rank, world_size=world_size)
-        torch.cuda.set_device(config.device)
+        torch.cuda.set_device(config.device_id)
 
     # model
     net = utility.get_net(config)

@@ -32,7 +32,7 @@ class Alignment(Base):
         self.decoder_type = 'default'
 
         # scheduler & optimizer
-        self.milestones = [200, 350, 450]
+        self.milestones = [40, 70, 90]
         self.max_epoch = 100
         self.optimizer = "adam"
         self.learn_rate = 0.001
