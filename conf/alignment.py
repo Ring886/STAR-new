@@ -32,8 +32,8 @@ class Alignment(Base):
         self.decoder_type = 'default'
 
         # scheduler & optimizer
-        self.milestones = [40, 70, 90]
-        self.max_epoch = 100
+        self.milestones = [200, 350, 450]
+        self.max_epoch = 500
         self.optimizer = "adam"
         self.learn_rate = 0.001
         self.weight_decay = 0.00001
