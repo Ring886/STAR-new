@@ -34,11 +34,14 @@ class Alignment(Base):
         # scheduler & optimizer
         self.milestones = [200, 350, 450]
         self.max_epoch = 500
-        self.optimizer = "adam"
+        self.optimizer = "adamw"
+        self.scheduler = "CosineAnnealingLR"
         self.learn_rate = 0.001
-        self.weight_decay = 0.00001
+        self.weight_decay = 0.0001
         self.betas = [0.9, 0.999]
         self.gamma = 0.1
+        self.eta_min = 1e-6
+        self.t_max = 500
 
         # batch_size & workers
         self.batch_size = 64

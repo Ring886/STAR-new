@@ -41,14 +41,17 @@ class Base:
         self.net = "stackedHGnet_v1"
         self.nstack = 4
 
-        # ["adam", "sgd"]
+        # ["adam", "adamw", "sgd", "rmsprop"]
         self.optimizer = "adam"
         self.learn_rate = 0.1
         self.momentum = 0.01  # caffe: 0.99
         self.weight_decay = 0.0
+        self.betas = [0.9, 0.999]
         self.nesterov = False
         self.scheduler = "MultiStepLR"
         self.gamma = 0.1
+        self.eta_min = 1e-6
+        self.t_max = None
 
         self.loss_weights = [1.0]
         self.criterions = ["SoftmaxWithLoss"]

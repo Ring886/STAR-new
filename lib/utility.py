@@ -111,7 +111,15 @@ def get_optimizer(config, net):
     elif config.optimizer == "adam":
         optimizer = optim.Adam(
             params,
-            lr=config.learn_rate)
+            lr=config.learn_rate,
+            betas=tuple(config.betas),
+            weight_decay=config.weight_decay)
+    elif config.optimizer == "adamw":
+        optimizer = optim.AdamW(
+            params,
+            lr=config.learn_rate,
+            betas=tuple(config.betas),
+            weight_decay=config.weight_decay)
     elif config.optimizer == "rmsprop":
         optimizer = optim.RMSprop(
             params,
@@ -129,6 +137,9 @@ def get_optimizer(config, net):
 def get_scheduler(config, optimizer):
     if config.scheduler == "MultiStepLR":
         scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=config.milestones, gamma=config.gamma)
+    elif config.scheduler == "CosineAnnealingLR":
+        t_max = config.t_max if getattr(config, 't_max', None) not in [None, 0] else config.max_epoch
+        scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=t_max, eta_min=getattr(config, 'eta_min', 1e-6))
     else:
         assert False
     return scheduler
