@@ -28,6 +28,8 @@ def add_train_options(parser):
     group.add_argument('--loss_func', type=str, default='STARLoss_v2', help="loss function")
     group.add_argument("--val_batch_size", type=int, default=None, help="the batch size in val process")
     group.add_argument("--val_num_workers", type=int, default=None, help="the num of workers in val process")
+    group.add_argument("--resume_training_state", action="store_true",
+                       help="when loading pretrained_weight in train mode, also restore optimizer/scheduler/epoch state")
 
 
 def add_eval_options(parser):
