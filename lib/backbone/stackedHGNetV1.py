@@ -101,7 +101,7 @@ class ResBlock(nn.Module):
         self.conv2 = ConvBlock(mid_dim, mid_dim, 3, relu=False)
         self.bn3 = nn.BatchNorm2d(mid_dim)
         self.conv3 = ConvBlock(mid_dim, out_dim, 1, relu=False)
-        self.se = SEBlock(out_dim)
+        self.se = nn.Identity()
         self.skip_layer = ConvBlock(inp_dim, out_dim, 1, relu=False)
         if inp_dim == out_dim:
             self.need_skip = False
@@ -128,7 +128,7 @@ class ResBlock(nn.Module):
 
 
 class Hourglass(nn.Module):
-    def __init__(self, n, f, increase=0, up_mode='bilinear',
+    def __init__(self, n, f, increase=0, up_mode='nearest',
                  add_coord=False, first_one=False, x_dim=64, y_dim=64):
         super(Hourglass, self).__init__()
         nf = f + increase

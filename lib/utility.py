@@ -112,8 +112,7 @@ def get_optimizer(config, net):
         optimizer = optim.Adam(
             params,
             lr=config.learn_rate,
-            betas=tuple(config.betas),
-            weight_decay=config.weight_decay)
+            betas=tuple(config.betas))
     elif config.optimizer == "adamw":
         optimizer = optim.AdamW(
             params,

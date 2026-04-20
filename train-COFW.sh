@@ -12,8 +12,8 @@ DEVICE_IDS="0,1,2,3"
 
 # Batch size:
 # - For Mac (Limited Memory): 8 or 16
-# - For GPU Server: 32 or 64
-BATCH_SIZE=64
+# - For GPU Server: default to 32 for a safer COFW training recipe
+BATCH_SIZE=32
 
 # Dataloader workers:
 # - For Mac: 0 or 2
