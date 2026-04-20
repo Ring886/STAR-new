@@ -13,7 +13,7 @@ DEVICE_IDS="0,1,2,3"
 # Batch size:
 # - For Mac (Limited Memory): 8 or 16
 # - For GPU Server: 32 or 64
-BATCH_SIZE=256
+BATCH_SIZE=64
 
 # Dataloader workers:
 # - For Mac: 0 or 2
