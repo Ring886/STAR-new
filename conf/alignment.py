@@ -1,4 +1,5 @@
 import os.path as osp
+from datetime import datetime
 from .base import Base
 
 
@@ -220,12 +221,4 @@ class Alignment(Base):
         self.test_pic_dir = self.image_dir
 
     def get_foldername(self):
-        str = ''
-        str += '{}_{}x{}_{}_ep{}_lr{}_bs{}'.format(self.data_definition, self.height, self.width,
-                                                   self.optimizer, self.max_epoch, self.learn_rate, self.batch_size)
-        str += '_{}'.format(self.loss_func)
-        str += '_{}_{}'.format(self.star_dist, self.star_w) if self.loss_func == 'STARLoss' else ''
-        str += '_AAM' if self.use_AAM else ''
-        str += '_{}'.format(self.valset[:-4]) if self.valset != 'test.tsv' else ''
-        str += '_{}'.format(self.id)
-        return str
+        return datetime.now().strftime('%Y%m%d-%H%M%S')
