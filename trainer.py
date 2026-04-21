@@ -90,19 +90,30 @@ def train_worker(world_rank, world_size, nodes_size, args, device_ids):
         else:
             pretrained_weight = args.pretrained_weight
 
+        start_epoch = 0
         try:
             if config.device.type == "cuda":
                 checkpoint = torch.load(pretrained_weight)
             else:
                 checkpoint = torch.load(pretrained_weight, map_location="cpu")
+
             net.load_state_dict(checkpoint["net"], strict=False)
             if net_ema is not None:
-                net_ema.load_state_dict(checkpoint["net_ema"], strict=False)
-            if config.logger is not None:
-                config.logger.warn("Successed to load pretrain model %s." % pretrained_weight)
-            start_epoch = checkpoint["epoch"]
-            optimizer.load_state_dict(checkpoint["optimizer"])
-            scheduler.load_state_dict(checkpoint["scheduler"])
+                utility.accumulate_net(net_ema, net, 0)
+
+            if args.resume_training_state:
+                if net_ema is not None and "net_ema" in checkpoint:
+                    net_ema.load_state_dict(checkpoint["net_ema"], strict=False)
+                if "optimizer" in checkpoint:
+                    optimizer.load_state_dict(checkpoint["optimizer"])
+                if "scheduler" in checkpoint:
+                    scheduler.load_state_dict(checkpoint["scheduler"])
+                start_epoch = checkpoint.get("epoch", 0)
+                if config.logger is not None:
+                    config.logger.warn("Successed to resume full training state from %s." % pretrained_weight)
+            else:
+                if config.logger is not None:
+                    config.logger.warn("Successed to load pretrained weights only from %s." % pretrained_weight)
         except:
             start_epoch = 0
             if config.logger is not None:
@@ -219,3 +230,13 @@ def train_worker(world_rank, world_size, nodes_size, args, device_ids):
 
     if world_size > 1:
         torch.distributed.destroy_process_group()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='train model')
+    parser.add_argument('--device_ids', nargs='+', type=int, default=[0], help='GPU IDs to use')
+    parser.add_argument('--mode', type=str, default='train')
+    parser.add_argument('--config_name', type=str, default='alignment')
+    parser.add_argument('--pretrained_weight', type=str, default=None)
+    args = parser.parse_args()
+    train(args)
