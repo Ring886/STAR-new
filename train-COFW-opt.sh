@@ -8,9 +8,9 @@
 # 4) Reset optimizer/scheduler state so the lower fine-tuning learning rate actually takes effect.
 
 DEVICE_IDS="0,1,2,3"
-BATCH_SIZE=16
-NUM_WORKERS=8
-LEARN_RATE=0.0003
+BATCH_SIZE=64
+NUM_WORKERS=16
+LEARN_RATE=0.0001
 IMAGE_DIR="./image_dir"
 ANNOT_DIR="./annot_dir"
 OUT_DIR="./out_dir"
