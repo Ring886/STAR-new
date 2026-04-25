@@ -49,6 +49,10 @@ class Base:
         self.nesterov = False
         self.scheduler = "MultiStepLR"
         self.gamma = 0.1
+        self.betas = [0.9, 0.999]
+        self.eta_min = 1e-6
+        self.t_max = self.max_epoch
+        self.detect_anomaly = False
 
         self.loss_weights = [1.0]
         self.criterions = ["SoftmaxWithLoss"]

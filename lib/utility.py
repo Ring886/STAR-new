@@ -1,6 +1,7 @@
 import json
 import os.path as osp
 import time
+from contextlib import nullcontext
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -111,7 +112,15 @@ def get_optimizer(config, net):
     elif config.optimizer == "adam":
         optimizer = optim.Adam(
             params,
-            lr=config.learn_rate)
+            lr=config.learn_rate,
+            betas=tuple(getattr(config, 'betas', (0.9, 0.999))),
+            weight_decay=getattr(config, 'weight_decay', 0.0))
+    elif config.optimizer == "adamw":
+        optimizer = optim.AdamW(
+            params,
+            lr=config.learn_rate,
+            betas=tuple(getattr(config, 'betas', (0.9, 0.999))),
+            weight_decay=getattr(config, 'weight_decay', 0.0))
     elif config.optimizer == "rmsprop":
         optimizer = optim.RMSprop(
             params,
@@ -129,6 +138,10 @@ def get_optimizer(config, net):
 def get_scheduler(config, optimizer):
     if config.scheduler == "MultiStepLR":
         scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=config.milestones, gamma=config.gamma)
+    elif config.scheduler == "CosineAnnealingLR":
+        t_max = config.t_max if getattr(config, 't_max', None) not in [None, 0] else config.max_epoch
+        scheduler = lr_scheduler.CosineAnnealingLR(
+            optimizer, T_max=t_max, eta_min=getattr(config, 'eta_min', 1e-6))
     else:
         assert False
     return scheduler
@@ -194,7 +207,7 @@ def set_environment(config):
     torch.set_flush_denormal(True)  # ignore extremely small value
     if config.device.type == "cuda":
         torch.backends.cudnn.benchmark = True
-    torch.autograd.set_detect_anomaly(True)
+    torch.autograd.set_detect_anomaly(getattr(config, 'detect_anomaly', False))
 
 
 def forward(config, test_loader, net):
@@ -296,8 +309,9 @@ def forward_backward(config, train_loader, net_module, net, net_ema, criterions,
         ave_losses = list(map(sum, zip(ave_losses, losses)))
 
         # backward
-        optimizer.zero_grad()
-        with torch.autograd.detect_anomaly():
+        optimizer.zero_grad(set_to_none=True)
+        anomaly_context = torch.autograd.detect_anomaly() if getattr(config, 'detect_anomaly', False) else nullcontext()
+        with anomaly_context:
             sum_loss.backward()
         # torch.nn.utils.clip_grad_norm_(net_module.parameters(), 128.0)
         optimizer.step()

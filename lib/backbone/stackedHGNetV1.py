@@ -48,6 +48,27 @@ class Activation(nn.Module):
         return f'kind={self.kind}, channel={self.channel}'
 
 
+class SEBlock(nn.Module):
+    """Squeeze-and-Excitation channel attention for residual features."""
+
+    def __init__(self, channel, reduction=16):
+        super(SEBlock, self).__init__()
+        hidden = max(channel // reduction, 1)
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channel, hidden, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(hidden, channel, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1)
+        return x * y
+
+
 class ConvBlock(nn.Module):
     def __init__(self, inp_dim, out_dim, kernel_size=3, stride=1, bn=False, relu=True, groups=1):
         super(ConvBlock, self).__init__()
@@ -71,7 +92,7 @@ class ConvBlock(nn.Module):
 
 
 class ResBlock(nn.Module):
-    def __init__(self, inp_dim, out_dim, mid_dim=None):
+    def __init__(self, inp_dim, out_dim, mid_dim=None, use_se=True, se_reduction=16):
         super(ResBlock, self).__init__()
         if mid_dim is None:
             mid_dim = out_dim // 2
@@ -82,6 +103,7 @@ class ResBlock(nn.Module):
         self.conv2 = ConvBlock(mid_dim, mid_dim, 3, relu=False)
         self.bn3 = nn.BatchNorm2d(mid_dim)
         self.conv3 = ConvBlock(mid_dim, out_dim, 1, relu=False)
+        self.se = SEBlock(out_dim, reduction=se_reduction) if use_se else nn.Identity()
         self.skip_layer = ConvBlock(inp_dim, out_dim, 1, relu=False)
         if inp_dim == out_dim:
             self.need_skip = False
@@ -102,12 +124,13 @@ class ResBlock(nn.Module):
         out = self.bn3(out)
         out = self.relu(out)
         out = self.conv3(out)
+        out = self.se(out)
         out += residual
         return out
 
 
 class Hourglass(nn.Module):
-    def __init__(self, n, f, increase=0, up_mode='nearest',
+    def __init__(self, n, f, increase=0, up_mode='bilinear',
                  add_coord=False, first_one=False, x_dim=64, y_dim=64):
         super(Hourglass, self).__init__()
         nf = f + increase
@@ -137,7 +160,10 @@ class Hourglass(nn.Module):
         else:
             self.low2 = Block(nf, nf)
         self.low3 = Block(nf, f)
-        self.up2 = nn.Upsample(scale_factor=2, mode=up_mode)
+        up_kwargs = {'scale_factor': 2, 'mode': up_mode}
+        if up_mode in ('linear', 'bilinear', 'bicubic', 'trilinear'):
+            up_kwargs['align_corners'] = False
+        self.up2 = nn.Upsample(**up_kwargs)
 
     def forward(self, x, heatmap=None):
         if self.coordconv is not None:

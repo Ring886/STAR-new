@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 torch_ver = torch.__version__.split('.')
 
 from .smoothL1Loss import SmoothL1Loss
@@ -41,18 +40,19 @@ class STARLoss_v2(nn.Module):
     def __repr__(self):
         return "STARLoss()"
 
-    def _make_grid(self, h, w):
+    def _make_grid(self, h, w, device=None, dtype=None):
         yy, xx = torch.meshgrid(
-            torch.arange(h).float() / (h - 1) * 2 - 1,
-            torch.arange(w).float() / (w - 1) * 2 - 1)
+            torch.arange(h, device=device, dtype=dtype or torch.float32) / (h - 1) * 2 - 1,
+            torch.arange(w, device=device, dtype=dtype or torch.float32) / (w - 1) * 2 - 1,
+            indexing='ij')
         return yy, xx
 
     def weighted_mean(self, heatmap):
         batch, npoints, h, w = heatmap.shape
 
-        yy, xx = self._make_grid(h, w)
-        yy = yy.view(1, 1, h, w).to(heatmap)
-        xx = xx.view(1, 1, h, w).to(heatmap)
+        yy, xx = self._make_grid(h, w, device=heatmap.device, dtype=heatmap.dtype)
+        yy = yy.view(1, 1, h, w)
+        xx = xx.view(1, 1, h, w)
 
         yy_coord = (yy * heatmap).sum([2, 3])  # batch x npoints
         xx_coord = (xx * heatmap).sum([2, 3])  # batch x npoints
@@ -62,13 +62,7 @@ class STARLoss_v2(nn.Module):
     def unbiased_weighted_covariance(self, htp, means, num_dim_image=2, EPSILON=1e-5):
         batch_size, num_points, height, width = htp.shape
 
-        yv, xv = self._make_grid(height, width)
-        xv = Variable(xv)
-        yv = Variable(yv)
-
-        if htp.is_cuda:
-            xv = xv.cuda()
-            yv = yv.cuda()
+        yv, xv = self._make_grid(height, width, device=htp.device, dtype=htp.dtype)
 
         xmean = means[:, :, 0]
         xv_minus_mean = xv.expand(batch_size, num_points, -1, -1) - expand_two_dimensions_at_end(xmean, height,
@@ -94,7 +88,7 @@ class STARLoss_v2(nn.Module):
         V_1 = htp.sum([2, 3]) + EPSILON  # [batch_size, 68]
         V_2 = torch.pow(htp, 2).sum([2, 3]) + EPSILON  # [batch_size, 68]
 
-        denominator = V_1 - (V_2 / V_1)
+        denominator = torch.clamp(V_1 - (V_2 / V_1), min=EPSILON)
         covariance = covariance / expand_two_dimensions_at_end(denominator, num_dim_image, num_dim_image)
 
         return covariance
@@ -112,7 +106,7 @@ class STARLoss_v2(nn.Module):
         normal_dist = normal_dist.reshape(bs, npoints, 1)
         tangent_dist = tangent_dist.reshape(bs, npoints, 1)
         dist = torch.cat((normal_dist, tangent_dist), dim=-1)
-        scale_dist = dist / torch.sqrt(evalues + self.EPSILON)
+        scale_dist = dist / torch.sqrt(torch.clamp(evalues, min=self.EPSILON))
         scale_dist = scale_dist.sum(-1)
         return scale_dist
 
@@ -134,15 +128,20 @@ class STARLoss_v2(nn.Module):
         means = self.weighted_mean(heatmap)  # [bs, 68, 2]
         covars = self.unbiased_weighted_covariance(heatmap, means)  # covars [bs, 68, 2, 2]
 
-        # TODO: GPU-based eigen-decomposition
-        # https://github.com/pytorch/pytorch/issues/60537
-        _covars = covars.view(bs * npoints, 2, 2).cpu()
+        _covars = covars.view(bs * npoints, 2, 2)
         if int(torch_ver[0]) > 1 or (int(torch_ver[0]) == 1 and int(torch_ver[1]) >= 8):
-            evalues, evectors = torch.linalg.eigh(_covars)  # evalues [bs * 68, 2], evectors [bs * 68, 2, 2]
+            try:
+                evalues, evectors = torch.linalg.eigh(_covars)  # evalues [bs * npoints, 2]
+            except RuntimeError:
+                # Some old CUDA/MPS builds have unstable eigh kernels for small matrices;
+                # fall back to CPU while keeping the rest of the loss device-agnostic.
+                evalues, evectors = torch.linalg.eigh(_covars.cpu())
+                evalues, evectors = evalues.to(heatmap), evectors.to(heatmap)
         else:
-            evalues, evectors = _covars.symeig(eigenvectors=True) # Pre-torch 1.8
-        evalues = evalues.view(bs, npoints, 2).to(heatmap)
-        evectors = evectors.view(bs, npoints, 2, 2).to(heatmap)
+            evalues, evectors = _covars.cpu().symeig(eigenvectors=True)  # Pre-torch 1.8
+            evalues, evectors = evalues.to(heatmap), evectors.to(heatmap)
+        evalues = evalues.view(bs, npoints, 2)
+        evectors = evectors.view(bs, npoints, 2, 2)
 
         # STAR Loss
         # Ambiguity-guided Decomposition
