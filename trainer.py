@@ -37,6 +37,8 @@ def train_worker(world_rank, world_size, nodes_size, args):
     utility.set_environment(config)
     # initialize instances, such as writer, logger and wandb.
     if world_rank == 0:
+        os.makedirs(config.log_dir, exist_ok=True)
+        os.makedirs(config.model_dir, exist_ok=True)
         config.init_instance()
 
     if config.logger is not None:
@@ -89,18 +91,30 @@ def train_worker(world_rank, world_size, nodes_size, args):
                 checkpoint = torch.load(pretrained_weight)
             else:
                 checkpoint = torch.load(pretrained_weight, map_location="cpu")
-            net.load_state_dict(checkpoint["net"], strict=False)
+            missing_keys, unexpected_keys = net.load_state_dict(checkpoint["net"], strict=False)
             if net_ema is not None:
-                net_ema.load_state_dict(checkpoint["net_ema"], strict=False)
+                if "net_ema" in checkpoint:
+                    net_ema.load_state_dict(checkpoint["net_ema"], strict=False)
+                else:
+                    utility.accumulate_net(net_ema, net, 0)
             if config.logger is not None:
-                config.logger.warn("Successed to load pretrain model %s." % pretrained_weight)
-            start_epoch = checkpoint["epoch"]
-            optimizer.load_state_dict(checkpoint["optimizer"])
-            scheduler.load_state_dict(checkpoint["scheduler"])
-        except:
+                config.logger.warning("Succeeded to load pretrained net weights from %s." % pretrained_weight)
+                config.logger.warning("Pretrained weight missing_keys=%d, unexpected_keys=%d." % (len(missing_keys), len(unexpected_keys)))
+            if getattr(args, "resume_training_state", False):
+                start_epoch = checkpoint.get("epoch", 0)
+                optimizer.load_state_dict(checkpoint["optimizer"])
+                scheduler.load_state_dict(checkpoint["scheduler"])
+                if config.logger is not None:
+                    config.logger.warning("Resumed optimizer/scheduler state from epoch %d." % start_epoch)
+            else:
+                start_epoch = 0
+                if config.logger is not None:
+                    config.logger.warning("Fine-tune mode: optimizer/scheduler are freshly initialized; start_epoch=0.")
+        except Exception:
+            traceback.print_exc()
             start_epoch = 0
             if config.logger is not None:
-                config.logger.warn("Failed to load pretrain model %s." % pretrained_weight)
+                config.logger.warning("Failed to load pretrain model %s." % pretrained_weight)
     else:
         start_epoch = 0
 

@@ -35,6 +35,8 @@ class Alignment(Base):
         self.milestones = [200, 350, 450]
         self.max_epoch = 500
         self.optimizer = "adam"
+        # Default remains the author's recipe. opt-3 train script overrides this
+        # to a smaller fine-tuning LR after loading the author's COFW checkpoint.
         self.learn_rate = 0.001
         self.weight_decay = 0.00001
         self.betas = [0.9, 0.999]
