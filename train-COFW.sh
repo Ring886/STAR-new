@@ -25,8 +25,9 @@ fi
 
 BATCH_SIZE="${BATCH_SIZE:-16}"
 NUM_WORKERS="${NUM_WORKERS:-16}"
-LEARN_RATE="${LEARN_RATE:-0.0001}"
-MAX_EPOCH="${MAX_EPOCH:-30}"
+LEARN_RATE="${LEARN_RATE:-0.00005}"
+MAX_EPOCH="${MAX_EPOCH:-20}"
+FINE_TUNE_STRATEGY="${FINE_TUNE_STRATEGY:-heads_only}"
 IMAGE_DIR="${IMAGE_DIR:-./image_dir}"
 ANNOT_DIR="${ANNOT_DIR:-./annot_dir}"
 OUT_DIR="${OUT_DIR:-./out_dir}"
@@ -44,6 +45,7 @@ echo "  BATCH_SIZE=${BATCH_SIZE}"
 echo "  NUM_WORKERS=${NUM_WORKERS}"
 echo "  LEARN_RATE=${LEARN_RATE}"
 echo "  MAX_EPOCH=${MAX_EPOCH}"
+echo "  FINE_TUNE_STRATEGY=${FINE_TUNE_STRATEGY}"
 echo "  PRETRAINED_WEIGHT=${PRETRAINED_WEIGHT}"
 
 python3 main.py --mode=train \
@@ -54,6 +56,7 @@ python3 main.py --mode=train \
   --val_num_workers="${NUM_WORKERS}" \
   --learn_rate="${LEARN_RATE}" \
   --max_epoch="${MAX_EPOCH}" \
+  --fine_tune_strategy="${FINE_TUNE_STRATEGY}" \
   --image_dir="${IMAGE_DIR}" \
   --annot_dir="${ANNOT_DIR}" \
   --data_definition=COFW \

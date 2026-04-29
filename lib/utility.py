@@ -98,7 +98,8 @@ def get_dataloader(config, data_type, world_rank=0, world_size=1):
 
 
 def get_optimizer(config, net):
-    params = net.parameters()
+    params = [p for p in net.parameters() if p.requires_grad]
+    assert len(params) > 0, "No trainable parameters found for optimizer"
 
     optimizer = None
     if config.optimizer == "sgd":
@@ -262,6 +263,12 @@ def forward_backward(config, train_loader, net_module, net, net_ema, criterions,
 
     net_module = net_module.float().to(config.device)
     net_module.train(True)
+    frozen_prefixes = tuple(getattr(config, "frozen_module_prefixes", []) or [])
+    if frozen_prefixes:
+        for module_name, module in net_module.named_modules():
+            clean_name = module_name[7:] if module_name.startswith("module.") else module_name
+            if clean_name.startswith(frozen_prefixes):
+                module.eval()
     dataset_size = len(train_loader.dataset)
     batch_size = config.batch_size  # train_loader.batch_size
     batch_num = max(dataset_size / max(batch_size, 1), 1)

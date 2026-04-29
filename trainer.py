@@ -13,6 +13,51 @@ os.environ["MKL_THREADING_LAYER"] = "GNU"
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
 
+def apply_fine_tune_strategy(net, strategy):
+    strategy = (strategy or "full").lower()
+    if strategy == "full":
+        total_params = sum(p.numel() for p in net.parameters())
+        trainable_params = sum(p.numel() for p in net.parameters() if p.requires_grad)
+        return {
+            "strategy": strategy,
+            "frozen_prefixes": [],
+            "trainable_prefixes": ["*"],
+            "total_params": total_params,
+            "trainable_params": trainable_params,
+        }
+    if strategy != "heads_only":
+        raise ValueError("Unknown fine_tune_strategy: %s" % strategy)
+
+    frozen_prefixes = ("pre", "hgs", "features")
+    trainable_prefixes = (
+        "out_heatmaps",
+        "out_edgemaps",
+        "out_pointmaps",
+        "merge_features",
+        "merge_heatmaps",
+        "merge_edgemaps",
+        "merge_pointmaps",
+        "e2h_transform",
+    )
+
+    for name, param in net.named_parameters():
+        keep_trainable = name.startswith(trainable_prefixes)
+        param.requires_grad = keep_trainable
+
+    for module_name, module in net.named_modules():
+        if module_name.startswith(frozen_prefixes):
+            module.eval()
+
+    total_params = sum(p.numel() for p in net.parameters())
+    trainable_params = sum(p.numel() for p in net.parameters() if p.requires_grad)
+    return {
+        "strategy": strategy,
+        "frozen_prefixes": list(frozen_prefixes),
+        "trainable_prefixes": list(trainable_prefixes),
+        "total_params": total_params,
+        "trainable_params": trainable_params,
+    }
+
 def train(args):
     device_ids = args.device_ids
     nprocs = len(device_ids)
@@ -58,6 +103,14 @@ def train_worker(world_rank, world_size, nodes_size, args):
         net = torch.nn.SyncBatchNorm.convert_sync_batchnorm(net)
     net = net.float().to(config.device)
     net.train(True)
+    fine_tune_info = apply_fine_tune_strategy(net, getattr(args, "fine_tune_strategy", "full"))
+    config.frozen_module_prefixes = fine_tune_info["frozen_prefixes"]
+    if config.logger is not None:
+        config.logger.warning("Fine-tune strategy: %s" % fine_tune_info["strategy"])
+        config.logger.warning("Trainable params: %d / %d" % (fine_tune_info["trainable_params"], fine_tune_info["total_params"]))
+        if fine_tune_info["frozen_prefixes"]:
+            config.logger.warning("Frozen prefixes: %s" % ", ".join(fine_tune_info["frozen_prefixes"]))
+        config.logger.warning("Trainable prefixes: %s" % ", ".join(fine_tune_info["trainable_prefixes"]))
     if config.ema and world_rank == 0:
         net_ema = utility.get_net(config)
         if world_size > 1:

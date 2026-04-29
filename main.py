@@ -32,6 +32,8 @@ def add_train_options(parser):
                        help="override max training epoch; useful for short fine-tuning runs")
     group.add_argument("--resume_training_state", action="store_true",
                        help="resume optimizer/scheduler/epoch from checkpoint. By default, --pretrained_weight only loads model weights for fine-tuning.")
+    group.add_argument("--fine_tune_strategy", type=str, default="full",
+                       help="fine-tune strategy: full or heads_only")
 
 
 def add_eval_options(parser):
