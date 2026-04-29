@@ -6,14 +6,29 @@ set -euo pipefail
 # Safe defaults are tuned for a single-GPU AutoDL/SeetaCloud instance, but the
 # script auto-detects visible CUDA GPUs and also allows env overrides.
 
+if [ -z "${PYTHON_BIN:-}" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3)"
+  elif command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python)"
+  elif [ -x /root/miniconda3/bin/python ]; then
+    PYTHON_BIN="/root/miniconda3/bin/python"
+  elif [ -x /root/anaconda3/bin/python ]; then
+    PYTHON_BIN="/root/anaconda3/bin/python"
+  else
+    echo "ERROR: Python interpreter not found. Set PYTHON_BIN=/path/to/python" >&2
+    exit 1
+  fi
+fi
+
 if [ -z "${DEVICE_IDS:-}" ]; then
-  GPU_COUNT=$(python3 - <<'PY_DEVICE'
+  GPU_COUNT=$("${PYTHON_BIN}" - <<'PY_DEVICE'
 import torch
 print(torch.cuda.device_count() if torch.cuda.is_available() else 0)
 PY_DEVICE
 )
   if [ "${GPU_COUNT}" -gt 0 ]; then
-    DEVICE_IDS=$(python3 - <<'PY_DEVICE'
+    DEVICE_IDS=$("${PYTHON_BIN}" - <<'PY_DEVICE'
 import torch
 print(",".join(str(i) for i in range(torch.cuda.device_count())))
 PY_DEVICE
@@ -40,6 +55,7 @@ fi
 
 echo "Starting opt-3-gpu-running COFW fine-tuning"
 echo "  GPU_COUNT=${GPU_COUNT:-manual}"
+echo "  PYTHON_BIN=${PYTHON_BIN}"
 echo "  DEVICE_IDS=${DEVICE_IDS}"
 echo "  BATCH_SIZE=${BATCH_SIZE}"
 echo "  NUM_WORKERS=${NUM_WORKERS}"
@@ -48,7 +64,7 @@ echo "  MAX_EPOCH=${MAX_EPOCH}"
 echo "  FINE_TUNE_STRATEGY=${FINE_TUNE_STRATEGY}"
 echo "  PRETRAINED_WEIGHT=${PRETRAINED_WEIGHT}"
 
-python3 main.py --mode=train \
+"${PYTHON_BIN}" main.py --mode=train \
   --device_ids="${DEVICE_IDS}" \
   --batch_size="${BATCH_SIZE}" \
   --val_batch_size=32 \
