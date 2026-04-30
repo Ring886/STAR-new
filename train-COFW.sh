@@ -3,8 +3,8 @@ set -euo pipefail
 
 # opt-2-gpu-running: COFW SEBlock short fine-tuning script.
 # This branch contains SEBlock changes. Prior SEBlock runs often saved best_model
-# at epoch 1, so default MAX_EPOCH is intentionally short and all knobs are
-# environment-variable overridable.
+# at epoch 1, so default MAX_EPOCH is intentionally very short and the default
+# batch size is conservative/stable. All knobs are environment-variable overridable.
 
 if [ -z "${PYTHON_BIN:-}" ]; then
   if command -v python3 >/dev/null 2>&1; then
@@ -38,10 +38,10 @@ PY_DEVICE
   fi
 fi
 
-BATCH_SIZE="${BATCH_SIZE:-16}"
+BATCH_SIZE="${BATCH_SIZE:-8}"
 NUM_WORKERS="${NUM_WORKERS:-16}"
 LEARN_RATE="${LEARN_RATE:-0.00005}"
-MAX_EPOCH="${MAX_EPOCH:-5}"
+MAX_EPOCH="${MAX_EPOCH:-3}"
 IMAGE_DIR="${IMAGE_DIR:-./image_dir}"
 ANNOT_DIR="${ANNOT_DIR:-./annot_dir}"
 OUT_DIR="${OUT_DIR:-./out_dir}"
