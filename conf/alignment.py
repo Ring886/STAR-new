@@ -65,6 +65,8 @@ class Alignment(Base):
         self.star_dist = 'smoothl1'
 
         self.init_from_args(args)
+        if self.scheduler == "CosineAnnealingLR":
+            self.t_max = self.max_epoch
 
         # COFW
         if self.data_definition == "COFW":
