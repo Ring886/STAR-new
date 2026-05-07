@@ -1,0 +1,102 @@
+==TEST full_lr3e4_ep3 ablation_runs/full_lr3e4_ep3/COFW/COFW_256x256_adam_ep3_lr0.0003_bs16_STARLoss_v2_AAM_c8f2555e-0935-43a5-af2f-d839041ba696-fin-0.0462/model/best_model.pkl==
+/root/miniconda3/lib/python3.12/site-packages/torch/__init__.py:1264: UserWarning: torch.set_default_tensor_type() is deprecated as of PyTorch 2.1, please use torch.set_default_dtype() and torch.set_default_device() as alternatives. (Triggered internally at /pytorch/torch/csrc/tensor/python_tensor.cpp:434.)
+  _C._set_default_tensor_type(t)
+2026-05-07 19:26:50,683 INFO    : Loaded configure file alignment: 4b426bd4-347a-4c85-8247-6f1a8dd35766
+2026-05-07 19:26:50,683 INFO    : 
+type: alignment
+id: 4b426bd4-347a-4c85-8247-6f1a8dd35766
+note: 
+ckpt_dir: out_dir
+image_dir: image_dir/COFW
+annot_dir: annot_dir
+loader_type: alignment
+loss_func: STARLoss_v2
+batch_size: 128
+val_batch_size: 32
+test_batch_size: 16
+channels: 3
+width: 256
+height: 256
+means: (127.5, 127.5, 127.5)
+scale: 0.00784313725490196
+display_iteration: 10
+milestones: [200, 350, 450]
+max_epoch: 500
+net: stackedHGnet_v1
+nstack: 4
+optimizer: adam
+learn_rate: 0.001
+momentum: 0.01
+weight_decay: 1e-05
+nesterov: False
+scheduler: MultiStepLR
+gamma: 0.1
+loss_weights: [0.125, 1.25, 1.25, 0.25, 2.5, 2.5, 0.5, 5.0, 5.0, 1.0, 10.0, 10.0]
+criterions: ['STARLoss_v2', 'AWingLoss', 'AWingLoss', 'STARLoss_v2', 'AWingLoss', 'AWingLoss', 'STARLoss_v2', 'AWingLoss', 'AWingLoss', 'STARLoss_v2', 'AWingLoss', 'AWingLoss']
+metrics: ['NME', None, None, 'NME', None, None, 'NME', None, None, 'NME', None, None]
+key_metric_index: 9
+classes_num: [29, 7, 29]
+label_num: 12
+ema: True
+use_AAM: True
+writer: <tensorboardX.writer.SummaryWriter object at 0x7f92706ef470>
+logger: <RootLogger root (NOTSET)>
+data_definition: COFW
+test_file: test.tsv
+aug_prob: 1.0
+val_epoch: 1
+valset: test.tsv
+norm_type: default
+encoder_type: default
+decoder_type: default
+betas: [0.9, 0.999]
+train_num_workers: 16
+val_num_workers: 16
+test_num_workers: 0
+add_coord: True
+star_w: 1
+star_dist: smoothl1
+edge_info: ((True, (0, 4, 2, 5)), (True, (1, 6, 3, 7)), (True, (8, 12, 10, 13)), (False, (9, 14, 11, 15)), (True, (18, 20, 19, 21)), (True, (22, 26, 23, 27)), (True, (22, 24, 23, 25)))
+nme_left_index: 16
+nme_right_index: 17
+crop_op: True
+flip_mapping: ([0, 1], [4, 6], [2, 3], [5, 7], [8, 9], [10, 11], [12, 14], [16, 17], [13, 15], [18, 19], [22, 23])
+folder: COFW_256x256_adam_ep500_lr0.001_bs128_STARLoss_v2_AAM_4b426bd4-347a-4c85-8247-6f1a8dd35766
+work_dir: out_dir/COFW/COFW_256x256_adam_ep500_lr0.001_bs128_STARLoss_v2_AAM_4b426bd4-347a-4c85-8247-6f1a8dd35766
+model_dir: out_dir/COFW/COFW_256x256_adam_ep500_lr0.001_bs128_STARLoss_v2_AAM_4b426bd4-347a-4c85-8247-6f1a8dd35766/model
+log_dir: out_dir/COFW/COFW_256x256_adam_ep500_lr0.001_bs128_STARLoss_v2_AAM_4b426bd4-347a-4c85-8247-6f1a8dd35766/log
+train_tsv_file: annot_dir/COFW/train.tsv
+train_pic_dir: image_dir/COFW
+val_tsv_file: annot_dir/COFW/test.tsv
+val_pic_dir: image_dir/COFW
+test_tsv_file: annot_dir/COFW/test.tsv
+test_pic_dir: image_dir/COFW
+device_id: 0
+device: cuda:0
+use_gpu: True
+2026-05-07 19:26:51,472 INFO    : Loaded network
+2026-05-07 19:26:51,485 INFO    : Loaded data from annot_dir/COFW/test.tsv
+2026-05-07 19:26:51,530 INFO    : Forward process, Dataset size: 506, Batch size: 16
+mode is test, config_name is alignment, pretrained_weight is ablation_runs/full_lr3e4_ep3/COFW/COFW_256x256_adam_ep3_lr0.0003_bs16_STARLoss_v2_AAM_c8f2555e-0935-43a5-af2f-d839041ba696-fin-0.0462/model/best_model.pkl, image_dir is image_dir, annot_dir is annot_dir, device_ids is 0
+  0%|          | 0/32 [00:00<?, ?it/s]/root/miniconda3/lib/python3.12/site-packages/torch/functional.py:554: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4322.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+  3%|▎         | 1/32 [00:03<01:41,  3.28s/it]  6%|▋         | 2/32 [00:05<01:26,  2.90s/it]  9%|▉         | 3/32 [00:08<01:21,  2.81s/it] 12%|█▎        | 4/32 [00:11<01:17,  2.76s/it] 16%|█▌        | 5/32 [00:14<01:15,  2.81s/it] 19%|█▉        | 6/32 [00:17<01:18,  3.01s/it] 22%|██▏       | 7/32 [00:21<01:21,  3.24s/it] 25%|██▌       | 8/32 [00:25<01:23,  3.48s/it] 28%|██▊       | 9/32 [00:28<01:20,  3.49s/it] 31%|███▏      | 10/32 [00:32<01:18,  3.55s/it] 34%|███▍      | 11/32 [00:35<01:12,  3.47s/it] 38%|███▊      | 12/32 [00:38<01:02,  3.12s/it] 41%|████      | 13/32 [00:39<00:50,  2.63s/it] 44%|████▍     | 14/32 [00:41<00:42,  2.34s/it] 47%|████▋     | 15/32 [00:42<00:35,  2.06s/it] 50%|█████     | 16/32 [00:44<00:30,  1.89s/it] 53%|█████▎    | 17/32 [00:45<00:26,  1.75s/it] 56%|█████▋    | 18/32 [00:47<00:24,  1.73s/it] 59%|█████▉    | 19/32 [00:48<00:22,  1.72s/it] 62%|██████▎   | 20/32 [00:50<00:19,  1.66s/it] 66%|██████▌   | 21/32 [00:51<00:17,  1.58s/it] 69%|██████▉   | 22/32 [00:53<00:16,  1.62s/it] 72%|███████▏  | 23/32 [00:55<00:14,  1.66s/it] 75%|███████▌  | 24/32 [00:56<00:12,  1.53s/it] 78%|███████▊  | 25/32 [00:57<00:09,  1.37s/it] 81%|████████▏ | 26/32 [00:58<00:07,  1.29s/it] 84%|████████▍ | 27/32 [00:59<00:06,  1.23s/it] 88%|████████▊ | 28/32 [01:00<00:04,  1.14s/it] 91%|█████████ | 29/32 [01:01<00:03,  1.12s/it] 94%|█████████▍| 30/32 [01:02<00:02,  1.09s/it] 97%|█████████▋| 31/32 [01:03<00:01,  1.06s/it]100%|██████████| 32/32 [01:04<00:00,  1.01it/s]100%|██████████| 32/32 [01:04<00:00,  2.02s/it]
+/root/miniconda3/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/root/miniconda3/lib/python3.12/site-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/root/autodl-tmp/STAR-new/lib/metric/fr_and_auc.py:25: RuntimeWarning: invalid value encountered in divide
+  ys = np.array([np.count_nonzero(nmes <= x) for x in xs]) / float(num_data)
+2026-05-07 19:27:56,229 INFO    : Finished inference
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME 0.054136, FR 0.025700, AUC 0.463940]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME 0.046385, FR 0.007900, AUC 0.538310]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME 0.046332, FR 0.007900, AUC 0.538797]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME 0.046225, FR 0.007900, AUC 0.539775]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
+2026-05-07 19:27:56,230 INFO    : Tested alignment dataset, the Size is 506, Metric: [NME nan, FR nan, AUC nan]
