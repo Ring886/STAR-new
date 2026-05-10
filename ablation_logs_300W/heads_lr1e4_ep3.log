@@ -1,0 +1,318 @@
+========== TRAIN heads_lr1e4_ep3 ==========
+strategy=heads_only, lr=0.0001, epochs=3, batch=16
+/root/miniconda3/lib/python3.12/site-packages/torch/__init__.py:1264: UserWarning: torch.set_default_tensor_type() is deprecated as of PyTorch 2.1, please use torch.set_default_dtype() and torch.set_default_device() as alternatives. (Triggered internally at /pytorch/torch/csrc/tensor/python_tensor.cpp:434.)
+  _C._set_default_tensor_type(t)
+2026-05-10 18:55:26,356 INFO    : 
+type: alignment
+id: 2319d9f4-1c58-4357-8cef-50f56a2c975c
+note: 
+ckpt_dir: ./ablation_runs_300W/heads_lr1e4_ep3
+image_dir: ./image_dir/300W
+annot_dir: ./annot_dir
+loader_type: alignment
+loss_func: STARLoss_v2
+batch_size: 16
+val_batch_size: 32
+test_batch_size: 16
+channels: 3
+width: 256
+height: 256
+means: (127.5, 127.5, 127.5)
+scale: 0.00784313725490196
+display_iteration: 10
+milestones: [200, 350, 450]
+max_epoch: 3
+net: stackedHGnet_v1
+nstack: 4
+optimizer: adam
+learn_rate: 0.0001
+momentum: 0.01
+weight_decay: 1e-05
+nesterov: False
+scheduler: MultiStepLR
+gamma: 0.1
+loss_weights: [0.125, 1.25, 1.25, 0.25, 2.5, 2.5, 0.5, 5.0, 5.0, 1.0, 10.0, 10.0]
+criterions: ['STARLoss_v2', 'AWingLoss', 'AWingLoss', 'STARLoss_v2', 'AWingLoss', 'AWingLoss', 'STARLoss_v2', 'AWingLoss', 'AWingLoss', 'STARLoss_v2', 'AWingLoss', 'AWingLoss']
+metrics: ['NME', None, None, 'NME', None, None, 'NME', None, None, 'NME', None, None]
+key_metric_index: 9
+classes_num: [68, 9, 68]
+label_num: 12
+ema: True
+use_AAM: True
+writer: <tensorboardX.writer.SummaryWriter object at 0x7f023541dbb0>
+logger: <RootLogger root (NOTSET)>
+data_definition: 300W
+test_file: test.tsv
+aug_prob: 1.0
+val_epoch: 1
+valset: test.tsv
+norm_type: default
+encoder_type: default
+decoder_type: default
+betas: [0.9, 0.999]
+train_num_workers: 16
+val_num_workers: 16
+test_num_workers: 0
+add_coord: True
+star_w: 1
+star_dist: smoothl1
+edge_info: ((False, (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)), (False, (17, 18, 19, 20, 21)), (False, (22, 23, 24, 25, 26)), (False, (27, 28, 29, 30)), (False, (31, 32, 33, 34, 35)), (True, (36, 37, 38, 39, 40, 41)), (True, (42, 43, 44, 45, 46, 47)), (True, (48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59)), (True, (60, 61, 62, 63, 64, 65, 66, 67)))
+nme_left_index: 36
+nme_right_index: 45
+crop_op: True
+flip_mapping: ([0, 16], [1, 15], [2, 14], [3, 13], [4, 12], [5, 11], [6, 10], [7, 9], [17, 26], [18, 25], [19, 24], [20, 23], [21, 22], [31, 35], [32, 34], [36, 45], [37, 44], [38, 43], [39, 42], [40, 47], [41, 46], [48, 54], [49, 53], [50, 52], [61, 63], [60, 64], [67, 65], [58, 56], [59, 55])
+folder: 300W_256x256_adam_ep3_lr0.0001_bs16_STARLoss_v2_AAM_2319d9f4-1c58-4357-8cef-50f56a2c975c
+work_dir: ./ablation_runs_300W/heads_lr1e4_ep3/300W/300W_256x256_adam_ep3_lr0.0001_bs16_STARLoss_v2_AAM_2319d9f4-1c58-4357-8cef-50f56a2c975c
+model_dir: ./ablation_runs_300W/heads_lr1e4_ep3/300W/300W_256x256_adam_ep3_lr0.0001_bs16_STARLoss_v2_AAM_2319d9f4-1c58-4357-8cef-50f56a2c975c/model
+log_dir: ./ablation_runs_300W/heads_lr1e4_ep3/300W/300W_256x256_adam_ep3_lr0.0001_bs16_STARLoss_v2_AAM_2319d9f4-1c58-4357-8cef-50f56a2c975c/log
+train_tsv_file: ./annot_dir/300W/train.tsv
+train_pic_dir: ./image_dir/300W
+val_tsv_file: ./annot_dir/300W/test.tsv
+val_pic_dir: ./image_dir/300W
+test_tsv_file: ./annot_dir/300W/test.tsv
+test_pic_dir: ./image_dir/300W
+device_id: 0
+device: cuda:0
+use_gpu: True
+2026-05-10 18:55:26,356 INFO    : Loaded configure file alignment: 2319d9f4-1c58-4357-8cef-50f56a2c975c
+2026-05-10 18:55:26,653 WARNING : Fine-tune strategy: heads_only
+2026-05-10 18:55:26,653 WARNING : Trainable params: 460100 / 17069572
+2026-05-10 18:55:26,653 WARNING : Frozen prefixes: pre, hgs, features
+2026-05-10 18:55:26,653 WARNING : Trainable prefixes: out_heatmaps, out_edgemaps, out_pointmaps, merge_features, merge_heatmaps, merge_edgemaps, merge_pointmaps, e2h_transform
+2026-05-10 18:55:27,280 WARNING : Succeeded to load pretrained net weights from model/300W_STARLoss_NME_2_87.pkl.
+2026-05-10 18:55:27,280 WARNING : Pretrained weight missing_keys=0, unexpected_keys=0.
+2026-05-10 18:55:27,280 WARNING : Fine-tune mode: optimizer/scheduler are freshly initialized; start_epoch=0.
+2026-05-10 18:55:27,280 INFO    : Loaded network
+2026-05-10 18:55:27,350 INFO    : Loaded data
+2026-05-10 18:55:27,350 INFO    : Optimizer type adam. Start training...
+2026-05-10 18:55:27,350 INFO    : Train/Epoch: 0/3, Learning rate decays to [0.0001], [Time Left: 00:00:00]eval_time: 0.00, 
+
+
+2026-05-10 18:55:27,368 INFO    : 
+2026-05-10 18:55:27,368 INFO    : Forward Backward process, Dataset size: 3147, Batch size: 16
+mode is train, config_name is alignment, pretrained_weight is model/300W_STARLoss_NME_2_87.pkl, image_dir is ./image_dir, annot_dir is ./annot_dir, device_ids is 0
+/root/miniconda3/lib/python3.12/site-packages/torch/functional.py:554: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at /pytorch/aten/src/ATen/native/TensorShape.cpp:4322.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+/root/autodl-tmp/STAR-new/lib/utility.py:307: UserWarning: Anomaly Detection has been enabled. This mode will increase the runtime and should only be enabled for debugging.
+  with torch.autograd.detect_anomaly():
+2026-05-10 18:55:32,107 INFO    :  -->>[001/003][000/197][Time Left: 00:09:20] Average Loss: 0.112967, L0: 0.277, L1: 0.012, L2: 0.132, L3: 0.207, L4: 0.011, L5: 0.113, L6: 0.187, L7: 0.010, L8: 0.108, L9: 0.180, L10: 0.010, L11: 0.108
+2026-05-10 18:55:35,094 INFO    :  -->>[001/003][010/197][Time Left: 00:01:37] Average Loss: 0.137715, L0: 0.334, L1: 0.013, L2: 0.133, L3: 0.287, L4: 0.012, L5: 0.120, L6: 0.255, L7: 0.011, L8: 0.115, L9: 0.248, L10: 0.010, L11: 0.114
+2026-05-10 18:55:38,066 INFO    :  -->>[001/003][020/197][Time Left: 00:01:12] Average Loss: 0.119056, L0: 0.281, L1: 0.012, L2: 0.134, L3: 0.225, L4: 0.011, L5: 0.118, L6: 0.201, L7: 0.011, L8: 0.114, L9: 0.196, L10: 0.010, L11: 0.114
+2026-05-10 18:55:40,969 INFO    :  -->>[001/003][030/197][Time Left: 00:01:01] Average Loss: 0.108932, L0: 0.262, L1: 0.013, L2: 0.127, L3: 0.203, L4: 0.011, L5: 0.109, L6: 0.182, L7: 0.011, L8: 0.103, L9: 0.174, L10: 0.010, L11: 0.103
+2026-05-10 18:55:43,903 INFO    :  -->>[001/003][040/197][Time Left: 00:00:54] Average Loss: 0.108534, L0: 0.265, L1: 0.012, L2: 0.119, L3: 0.211, L4: 0.011, L5: 0.103, L6: 0.185, L7: 0.010, L8: 0.099, L9: 0.178, L10: 0.010, L11: 0.098
+2026-05-10 18:55:46,900 INFO    :  -->>[001/003][050/197][Time Left: 00:00:49] Average Loss: 0.112914, L0: 0.274, L1: 0.012, L2: 0.124, L3: 0.218, L4: 0.011, L5: 0.108, L6: 0.195, L7: 0.011, L8: 0.102, L9: 0.187, L10: 0.010, L11: 0.102
+2026-05-10 18:55:49,774 INFO    :  -->>[001/003][060/197][Time Left: 00:00:44] Average Loss: 0.109997, L0: 0.266, L1: 0.012, L2: 0.123, L3: 0.210, L4: 0.011, L5: 0.109, L6: 0.185, L7: 0.011, L8: 0.103, L9: 0.177, L10: 0.010, L11: 0.103
+2026-05-10 18:55:52,500 INFO    :  -->>[001/003][070/197][Time Left: 00:00:40] Average Loss: 0.110913, L0: 0.271, L1: 0.012, L2: 0.121, L3: 0.211, L4: 0.011, L5: 0.108, L6: 0.190, L7: 0.010, L8: 0.103, L9: 0.180, L10: 0.010, L11: 0.102
+2026-05-10 18:55:55,458 INFO    :  -->>[001/003][080/197][Time Left: 00:00:36] Average Loss: 0.112006, L0: 0.261, L1: 0.012, L2: 0.129, L3: 0.207, L4: 0.011, L5: 0.112, L6: 0.193, L7: 0.011, L8: 0.106, L9: 0.186, L10: 0.010, L11: 0.105
+2026-05-10 18:55:58,250 INFO    :  -->>[001/003][090/197][Time Left: 00:00:32] Average Loss: 0.106759, L0: 0.265, L1: 0.012, L2: 0.123, L3: 0.205, L4: 0.011, L5: 0.102, L6: 0.180, L7: 0.010, L8: 0.095, L9: 0.174, L10: 0.010, L11: 0.094
+2026-05-10 18:56:01,034 INFO    :  -->>[001/003][100/197][Time Left: 00:00:29] Average Loss: 0.117774, L0: 0.277, L1: 0.012, L2: 0.131, L3: 0.218, L4: 0.011, L5: 0.118, L6: 0.205, L7: 0.011, L8: 0.113, L9: 0.194, L10: 0.010, L11: 0.113
+2026-05-10 18:56:03,980 INFO    :  -->>[001/003][110/197][Time Left: 00:00:26] Average Loss: 0.112367, L0: 0.281, L1: 0.012, L2: 0.125, L3: 0.212, L4: 0.011, L5: 0.110, L6: 0.190, L7: 0.010, L8: 0.104, L9: 0.179, L10: 0.010, L11: 0.104
+2026-05-10 18:56:07,115 INFO    :  -->>[001/003][120/197][Time Left: 00:00:23] Average Loss: 0.112372, L0: 0.274, L1: 0.012, L2: 0.125, L3: 0.217, L4: 0.011, L5: 0.107, L6: 0.193, L7: 0.010, L8: 0.102, L9: 0.185, L10: 0.010, L11: 0.101
+2026-05-10 18:56:09,953 INFO    :  -->>[001/003][130/197][Time Left: 00:00:19] Average Loss: 0.118275, L0: 0.290, L1: 0.013, L2: 0.128, L3: 0.231, L4: 0.012, L5: 0.110, L6: 0.208, L7: 0.011, L8: 0.105, L9: 0.196, L10: 0.010, L11: 0.105
+2026-05-10 18:56:12,850 INFO    :  -->>[001/003][140/197][Time Left: 00:00:16] Average Loss: 0.111291, L0: 0.280, L1: 0.012, L2: 0.127, L3: 0.210, L4: 0.011, L5: 0.110, L6: 0.184, L7: 0.010, L8: 0.102, L9: 0.178, L10: 0.010, L11: 0.101
+2026-05-10 18:56:15,506 INFO    :  -->>[001/003][150/197][Time Left: 00:00:13] Average Loss: 0.119150, L0: 0.295, L1: 0.012, L2: 0.130, L3: 0.228, L4: 0.011, L5: 0.115, L6: 0.205, L7: 0.011, L8: 0.110, L9: 0.194, L10: 0.010, L11: 0.109
+2026-05-10 18:56:18,452 INFO    :  -->>[001/003][160/197][Time Left: 00:00:10] Average Loss: 0.112943, L0: 0.265, L1: 0.012, L2: 0.133, L3: 0.209, L4: 0.011, L5: 0.114, L6: 0.192, L7: 0.011, L8: 0.107, L9: 0.183, L10: 0.010, L11: 0.107
+2026-05-10 18:56:21,071 INFO    :  -->>[001/003][170/197][Time Left: 00:00:07] Average Loss: 0.107835, L0: 0.282, L1: 0.012, L2: 0.120, L3: 0.200, L4: 0.011, L5: 0.101, L6: 0.185, L7: 0.011, L8: 0.095, L9: 0.173, L10: 0.010, L11: 0.094
+2026-05-10 18:56:23,620 INFO    :  -->>[001/003][180/197][Time Left: 00:00:04] Average Loss: 0.111195, L0: 0.258, L1: 0.012, L2: 0.132, L3: 0.202, L4: 0.011, L5: 0.116, L6: 0.184, L7: 0.011, L8: 0.112, L9: 0.175, L10: 0.010, L11: 0.111
+2026-05-10 18:56:25,996 INFO    :  -->>[001/003][190/197][Time Left: 00:00:01] Average Loss: 0.107646, L0: 0.263, L1: 0.012, L2: 0.119, L3: 0.207, L4: 0.011, L5: 0.101, L6: 0.190, L7: 0.010, L8: 0.096, L9: 0.177, L10: 0.010, L11: 0.095
+2026-05-10 18:56:27,618 INFO    :  -->>[001/003][196/197][Time Left: 00:00:00] Average Loss: 0.105469, L0: 0.245, L1: 0.013, L2: 0.127, L3: 0.189, L4: 0.012, L5: 0.111, L6: 0.170, L7: 0.011, L8: 0.107, L9: 0.163, L10: 0.011, L11: 0.107
+2026-05-10 18:56:27,743 INFO    : Train/Epoch: 1/3, Average total time cost per iteration in this epoch: 0.306471
+2026-05-10 18:56:27,743 INFO    : Train/Epoch: 1/3, Average loading data time cost per iteration in this epoch: 0.019290
+2026-05-10 18:56:27,743 INFO    : Train/Epoch: 1/3, Average training model time cost per iteration in this epoch: 0.287180
+2026-05-10 18:56:27,744 INFO    : Train/Epoch: 1/3, Average Loss in this epoch: 0.112325
+2026-05-10 18:56:27,744 INFO    : Train/Loss000 in this epoch: 0.273126
+2026-05-10 18:56:27,744 INFO    : Train/Loss001 in this epoch: 0.012334
+2026-05-10 18:56:27,744 INFO    : Train/Loss002 in this epoch: 0.124892
+2026-05-10 18:56:27,744 INFO    : Train/Loss003 in this epoch: 0.213959
+2026-05-10 18:56:27,744 INFO    : Train/Loss004 in this epoch: 0.011366
+2026-05-10 18:56:27,744 INFO    : Train/Loss005 in this epoch: 0.108476
+2026-05-10 18:56:27,744 INFO    : Train/Loss006 in this epoch: 0.192763
+2026-05-10 18:56:27,744 INFO    : Train/Loss007 in this epoch: 0.010573
+2026-05-10 18:56:27,744 INFO    : Train/Loss008 in this epoch: 0.103064
+2026-05-10 18:56:27,744 INFO    : Train/Loss009 in this epoch: 0.184853
+2026-05-10 18:56:27,744 INFO    : Train/Loss010 in this epoch: 0.010064
+2026-05-10 18:56:27,744 INFO    : Train/Loss011 in this epoch: 0.102424
+2026-05-10 18:56:27,770 INFO    : Forward process, Dataset size: 688, Batch size: 32
+  0%|          | 0/22 [00:00<?, ?it/s]  5%|▍         | 1/22 [00:04<01:34,  4.51s/it] 14%|█▎        | 3/22 [00:04<00:23,  1.24s/it] 23%|██▎       | 5/22 [00:04<00:10,  1.57it/s] 32%|███▏      | 7/22 [00:04<00:05,  2.52it/s] 41%|████      | 9/22 [00:05<00:03,  3.66it/s] 50%|█████     | 11/22 [00:05<00:02,  4.97it/s] 59%|█████▉    | 13/22 [00:05<00:01,  6.41it/s] 68%|██████▊   | 15/22 [00:05<00:00,  7.88it/s] 77%|███████▋  | 17/22 [00:05<00:00,  9.26it/s] 86%|████████▋ | 19/22 [00:05<00:00, 10.46it/s] 95%|█████████▌| 21/22 [00:05<00:00, 11.60it/s]100%|██████████| 22/22 [00:06<00:00,  3.60it/s]
+/root/miniconda3/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:3860: RuntimeWarning: Mean of empty slice.
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/root/miniconda3/lib/python3.12/site-packages/numpy/_core/_methods.py:144: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
+/root/autodl-tmp/STAR-new/lib/metric/fr_and_auc.py:25: RuntimeWarning: invalid value encountered in divide
+  ys = np.array([np.count_nonzero(nmes <= x) for x in xs]) / float(num_data)
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  0 in this epoch: [NME 0.036179, FR 0.143900, AUC 0.321702]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  1 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  2 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  3 in this epoch: [NME 0.031280, FR 0.079900, AUC 0.394983]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  4 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  5 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  6 in this epoch: [NME 0.029721, FR 0.068300, AUC 0.419302]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  7 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  8 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric  9 in this epoch: [NME 0.029116, FR 0.061000, AUC 0.429628]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric 10 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:33,939 INFO    : Val_net/Metric 11 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:34,283 INFO    : Epoch: 1/3, model saved in this epoch
+2026-05-10 18:56:34,295 INFO    : Forward process, Dataset size: 688, Batch size: 32
+  0%|          | 0/22 [00:00<?, ?it/s]  5%|▍         | 1/22 [00:04<01:29,  4.25s/it]  9%|▉         | 2/22 [00:04<00:36,  1.81s/it] 18%|█▊        | 4/22 [00:04<00:13,  1.37it/s] 27%|██▋       | 6/22 [00:04<00:06,  2.39it/s] 36%|███▋      | 8/22 [00:04<00:03,  3.60it/s] 45%|████▌     | 10/22 [00:04<00:02,  4.98it/s] 55%|█████▍    | 12/22 [00:05<00:01,  6.46it/s] 64%|██████▎   | 14/22 [00:05<00:01,  7.96it/s] 73%|███████▎  | 16/22 [00:05<00:00,  9.37it/s] 82%|████████▏ | 18/22 [00:05<00:00, 10.53it/s] 91%|█████████ | 20/22 [00:05<00:00, 11.62it/s]100%|██████████| 22/22 [00:05<00:00,  3.72it/s]
+2026-05-10 18:56:40,310 INFO    : Val_net_ema/Metric  0 in this epoch: [NME 0.036226, FR 0.145300, AUC 0.321297]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  1 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  2 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  3 in this epoch: [NME 0.030997, FR 0.081400, AUC 0.400351]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  4 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  5 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  6 in this epoch: [NME 0.029288, FR 0.064000, AUC 0.427873]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  7 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  8 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric  9 in this epoch: [NME 0.028698, FR 0.058100, AUC 0.437783]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric 10 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,311 INFO    : Val_net_ema/Metric 11 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:56:40,524 INFO    : Epoch: 1/3, model saved in this epoch
+2026-05-10 18:56:40,524 INFO    : Val/Best_Metric009 in this epoch: 0.028698
+2026-05-10 18:56:40,525 INFO    : Train/Epoch: 1/3, Learning rate decays to [0.0001], [Time Left: 00:01:13]eval_time: 12.77, 
+
+
+2026-05-10 18:56:40,545 INFO    : 
+2026-05-10 18:56:40,545 INFO    : Forward Backward process, Dataset size: 3147, Batch size: 16
+2026-05-10 18:56:44,110 INFO    :  -->>[002/003][000/197][Time Left: 00:04:35] Average Loss: 0.117747, L0: 0.289, L1: 0.012, L2: 0.131, L3: 0.220, L4: 0.011, L5: 0.114, L6: 0.207, L7: 0.011, L8: 0.108, L9: 0.193, L10: 0.010, L11: 0.106
+2026-05-10 18:56:47,088 INFO    :  -->>[002/003][010/197][Time Left: 00:01:12] Average Loss: 0.113155, L0: 0.281, L1: 0.012, L2: 0.128, L3: 0.210, L4: 0.011, L5: 0.109, L6: 0.191, L7: 0.010, L8: 0.105, L9: 0.186, L10: 0.010, L11: 0.104
+2026-05-10 18:56:50,014 INFO    :  -->>[002/003][020/197][Time Left: 00:00:59] Average Loss: 0.112252, L0: 0.279, L1: 0.013, L2: 0.127, L3: 0.215, L4: 0.012, L5: 0.109, L6: 0.186, L7: 0.011, L8: 0.103, L9: 0.181, L10: 0.010, L11: 0.102
+2026-05-10 18:56:52,882 INFO    :  -->>[002/003][030/197][Time Left: 00:00:53] Average Loss: 0.116512, L0: 0.281, L1: 0.013, L2: 0.132, L3: 0.220, L4: 0.012, L5: 0.118, L6: 0.191, L7: 0.011, L8: 0.113, L9: 0.185, L10: 0.010, L11: 0.112
+2026-05-10 18:56:55,806 INFO    :  -->>[002/003][040/197][Time Left: 00:00:48] Average Loss: 0.106126, L0: 0.239, L1: 0.012, L2: 0.124, L3: 0.197, L4: 0.011, L5: 0.110, L6: 0.179, L7: 0.010, L8: 0.105, L9: 0.173, L10: 0.010, L11: 0.104
+2026-05-10 18:56:58,645 INFO    :  -->>[002/003][050/197][Time Left: 00:00:44] Average Loss: 0.106187, L0: 0.262, L1: 0.012, L2: 0.118, L3: 0.201, L4: 0.011, L5: 0.101, L6: 0.182, L7: 0.011, L8: 0.096, L9: 0.174, L10: 0.010, L11: 0.096
+2026-05-10 18:57:01,501 INFO    :  -->>[002/003][060/197][Time Left: 00:00:40] Average Loss: 0.123278, L0: 0.310, L1: 0.013, L2: 0.127, L3: 0.237, L4: 0.012, L5: 0.113, L6: 0.218, L7: 0.011, L8: 0.109, L9: 0.213, L10: 0.010, L11: 0.108
+2026-05-10 18:57:04,410 INFO    :  -->>[002/003][070/197][Time Left: 00:00:37] Average Loss: 0.107136, L0: 0.260, L1: 0.012, L2: 0.119, L3: 0.202, L4: 0.011, L5: 0.102, L6: 0.187, L7: 0.010, L8: 0.096, L9: 0.181, L10: 0.010, L11: 0.096
+2026-05-10 18:57:07,544 INFO    :  -->>[002/003][080/197][Time Left: 00:00:34] Average Loss: 0.129219, L0: 0.319, L1: 0.013, L2: 0.133, L3: 0.255, L4: 0.012, L5: 0.119, L6: 0.232, L7: 0.011, L8: 0.112, L9: 0.222, L10: 0.011, L11: 0.111
+2026-05-10 18:57:10,502 INFO    :  -->>[002/003][090/197][Time Left: 00:00:31] Average Loss: 0.111184, L0: 0.261, L1: 0.012, L2: 0.120, L3: 0.217, L4: 0.011, L5: 0.105, L6: 0.198, L7: 0.011, L8: 0.099, L9: 0.191, L10: 0.010, L11: 0.098
+2026-05-10 18:57:13,392 INFO    :  -->>[002/003][100/197][Time Left: 00:00:28] Average Loss: 0.108139, L0: 0.259, L1: 0.012, L2: 0.124, L3: 0.206, L4: 0.011, L5: 0.104, L6: 0.185, L7: 0.010, L8: 0.099, L9: 0.179, L10: 0.010, L11: 0.099
+2026-05-10 18:57:16,230 INFO    :  -->>[002/003][110/197][Time Left: 00:00:25] Average Loss: 0.113965, L0: 0.285, L1: 0.013, L2: 0.124, L3: 0.224, L4: 0.011, L5: 0.104, L6: 0.200, L7: 0.011, L8: 0.099, L9: 0.189, L10: 0.010, L11: 0.098
+2026-05-10 18:57:19,121 INFO    :  -->>[002/003][120/197][Time Left: 00:00:22] Average Loss: 0.105069, L0: 0.245, L1: 0.012, L2: 0.119, L3: 0.199, L4: 0.011, L5: 0.105, L6: 0.180, L7: 0.010, L8: 0.100, L9: 0.171, L10: 0.010, L11: 0.099
+2026-05-10 18:57:21,978 INFO    :  -->>[002/003][130/197][Time Left: 00:00:19] Average Loss: 0.105667, L0: 0.254, L1: 0.012, L2: 0.126, L3: 0.198, L4: 0.011, L5: 0.105, L6: 0.176, L7: 0.011, L8: 0.098, L9: 0.168, L10: 0.010, L11: 0.097
+2026-05-10 18:57:24,795 INFO    :  -->>[002/003][140/197][Time Left: 00:00:16] Average Loss: 0.115136, L0: 0.271, L1: 0.013, L2: 0.134, L3: 0.214, L4: 0.012, L5: 0.117, L6: 0.193, L7: 0.011, L8: 0.111, L9: 0.185, L10: 0.010, L11: 0.111
+2026-05-10 18:57:27,070 INFO    :  -->>[002/003][150/197][Time Left: 00:00:13] Average Loss: 0.102714, L0: 0.241, L1: 0.012, L2: 0.121, L3: 0.189, L4: 0.011, L5: 0.105, L6: 0.171, L7: 0.010, L8: 0.100, L9: 0.163, L10: 0.009, L11: 0.100
+2026-05-10 18:57:29,528 INFO    :  -->>[002/003][160/197][Time Left: 00:00:10] Average Loss: 0.117342, L0: 0.268, L1: 0.013, L2: 0.141, L3: 0.212, L4: 0.012, L5: 0.125, L6: 0.192, L7: 0.011, L8: 0.119, L9: 0.186, L10: 0.011, L11: 0.119
+2026-05-10 18:57:31,798 INFO    :  -->>[002/003][170/197][Time Left: 00:00:07] Average Loss: 0.112911, L0: 0.279, L1: 0.012, L2: 0.127, L3: 0.216, L4: 0.011, L5: 0.108, L6: 0.193, L7: 0.010, L8: 0.102, L9: 0.185, L10: 0.010, L11: 0.102
+2026-05-10 18:57:34,334 INFO    :  -->>[002/003][180/197][Time Left: 00:00:04] Average Loss: 0.114021, L0: 0.280, L1: 0.012, L2: 0.124, L3: 0.218, L4: 0.011, L5: 0.109, L6: 0.194, L7: 0.011, L8: 0.104, L9: 0.191, L10: 0.010, L11: 0.104
+2026-05-10 18:57:37,038 INFO    :  -->>[002/003][190/197][Time Left: 00:00:01] Average Loss: 0.106537, L0: 0.266, L1: 0.012, L2: 0.119, L3: 0.198, L4: 0.011, L5: 0.104, L6: 0.178, L7: 0.011, L8: 0.099, L9: 0.172, L10: 0.010, L11: 0.098
+2026-05-10 18:57:38,616 INFO    :  -->>[002/003][196/197][Time Left: 00:00:00] Average Loss: 0.115239, L0: 0.291, L1: 0.012, L2: 0.124, L3: 0.229, L4: 0.011, L5: 0.108, L6: 0.200, L7: 0.010, L8: 0.101, L9: 0.187, L10: 0.010, L11: 0.100
+2026-05-10 18:57:38,750 INFO    : Train/Epoch: 2/3, Average total time cost per iteration in this epoch: 0.295455
+2026-05-10 18:57:38,750 INFO    : Train/Epoch: 2/3, Average loading data time cost per iteration in this epoch: 0.020854
+2026-05-10 18:57:38,750 INFO    : Train/Epoch: 2/3, Average training model time cost per iteration in this epoch: 0.274602
+2026-05-10 18:57:38,750 INFO    : Train/Epoch: 2/3, Average Loss in this epoch: 0.112993
+2026-05-10 18:57:38,750 INFO    : Train/Loss000 in this epoch: 0.275010
+2026-05-10 18:57:38,750 INFO    : Train/Loss001 in this epoch: 0.012350
+2026-05-10 18:57:38,750 INFO    : Train/Loss002 in this epoch: 0.125341
+2026-05-10 18:57:38,750 INFO    : Train/Loss003 in this epoch: 0.215665
+2026-05-10 18:57:38,750 INFO    : Train/Loss004 in this epoch: 0.011373
+2026-05-10 18:57:38,750 INFO    : Train/Loss005 in this epoch: 0.108794
+2026-05-10 18:57:38,750 INFO    : Train/Loss006 in this epoch: 0.194259
+2026-05-10 18:57:38,750 INFO    : Train/Loss007 in this epoch: 0.010582
+2026-05-10 18:57:38,750 INFO    : Train/Loss008 in this epoch: 0.103441
+2026-05-10 18:57:38,750 INFO    : Train/Loss009 in this epoch: 0.186222
+2026-05-10 18:57:38,750 INFO    : Train/Loss010 in this epoch: 0.010081
+2026-05-10 18:57:38,751 INFO    : Train/Loss011 in this epoch: 0.102795
+2026-05-10 18:57:38,779 INFO    : Forward process, Dataset size: 688, Batch size: 32
+  0%|          | 0/22 [00:00<?, ?it/s]  5%|▍         | 1/22 [00:04<01:31,  4.35s/it] 14%|█▎        | 3/22 [00:04<00:22,  1.19s/it] 23%|██▎       | 5/22 [00:04<00:10,  1.63it/s] 32%|███▏      | 7/22 [00:04<00:05,  2.61it/s] 41%|████      | 9/22 [00:04<00:03,  3.78it/s] 50%|█████     | 11/22 [00:05<00:02,  5.11it/s] 59%|█████▉    | 13/22 [00:05<00:01,  6.55it/s] 68%|██████▊   | 15/22 [00:05<00:00,  8.01it/s] 77%|███████▋  | 17/22 [00:05<00:00,  9.29it/s] 86%|████████▋ | 19/22 [00:05<00:00, 10.55it/s] 95%|█████████▌| 21/22 [00:05<00:00, 11.65it/s]100%|██████████| 22/22 [00:05<00:00,  3.73it/s]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  0 in this epoch: [NME 0.036097, FR 0.142400, AUC 0.323303]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  1 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  2 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  3 in this epoch: [NME 0.031182, FR 0.079900, AUC 0.396525]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  4 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  5 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  6 in this epoch: [NME 0.029704, FR 0.064000, AUC 0.419679]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  7 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  8 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric  9 in this epoch: [NME 0.028959, FR 0.061000, AUC 0.432498]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric 10 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,738 INFO    : Val_net/Metric 11 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:44,750 INFO    : Forward process, Dataset size: 688, Batch size: 32
+  0%|          | 0/22 [00:00<?, ?it/s]  5%|▍         | 1/22 [00:04<01:29,  4.27s/it] 14%|█▎        | 3/22 [00:04<00:22,  1.17s/it] 23%|██▎       | 5/22 [00:04<00:10,  1.65it/s] 32%|███▏      | 7/22 [00:04<00:05,  2.65it/s] 41%|████      | 9/22 [00:04<00:03,  3.84it/s] 50%|█████     | 11/22 [00:04<00:02,  5.18it/s] 59%|█████▉    | 13/22 [00:05<00:01,  6.62it/s] 68%|██████▊   | 15/22 [00:05<00:00,  8.08it/s] 77%|███████▋  | 17/22 [00:05<00:00,  9.35it/s] 86%|████████▋ | 19/22 [00:05<00:00, 10.63it/s] 95%|█████████▌| 21/22 [00:05<00:00, 11.69it/s]100%|██████████| 22/22 [00:05<00:00,  3.76it/s]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  0 in this epoch: [NME 0.036187, FR 0.143900, AUC 0.321906]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  1 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  2 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  3 in this epoch: [NME 0.031012, FR 0.081400, AUC 0.399981]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  4 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  5 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  6 in this epoch: [NME 0.029322, FR 0.065400, AUC 0.427095]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  7 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  8 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric  9 in this epoch: [NME 0.028706, FR 0.058100, AUC 0.437549]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric 10 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val_net_ema/Metric 11 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:57:50,650 INFO    : Val/Best_Metric009 in this epoch: 0.028698
+2026-05-10 18:57:50,650 INFO    : Train/Epoch: 2/3, Learning rate decays to [0.0001], [Time Left: 00:00:47]eval_time: 12.33, 
+
+
+2026-05-10 18:57:50,671 INFO    : 
+2026-05-10 18:57:50,671 INFO    : Forward Backward process, Dataset size: 3147, Batch size: 16
+2026-05-10 18:57:53,844 INFO    :  -->>[003/003][000/197][Time Left: 00:04:22] Average Loss: 0.111829, L0: 0.281, L1: 0.012, L2: 0.125, L3: 0.212, L4: 0.011, L5: 0.108, L6: 0.190, L7: 0.010, L8: 0.102, L9: 0.180, L10: 0.010, L11: 0.102
+2026-05-10 18:57:57,018 INFO    :  -->>[003/003][010/197][Time Left: 00:01:13] Average Loss: 0.117074, L0: 0.282, L1: 0.013, L2: 0.126, L3: 0.228, L4: 0.012, L5: 0.110, L6: 0.207, L7: 0.011, L8: 0.104, L9: 0.200, L10: 0.010, L11: 0.104
+2026-05-10 18:57:59,864 INFO    :  -->>[003/003][020/197][Time Left: 00:00:59] Average Loss: 0.115588, L0: 0.285, L1: 0.012, L2: 0.130, L3: 0.220, L4: 0.011, L5: 0.112, L6: 0.195, L7: 0.011, L8: 0.107, L9: 0.186, L10: 0.010, L11: 0.107
+2026-05-10 18:58:02,613 INFO    :  -->>[003/003][030/197][Time Left: 00:00:52] Average Loss: 0.114683, L0: 0.300, L1: 0.012, L2: 0.116, L3: 0.225, L4: 0.011, L5: 0.100, L6: 0.204, L7: 0.011, L8: 0.096, L9: 0.196, L10: 0.010, L11: 0.095
+2026-05-10 18:58:05,421 INFO    :  -->>[003/003][040/197][Time Left: 00:00:47] Average Loss: 0.115331, L0: 0.284, L1: 0.012, L2: 0.122, L3: 0.225, L4: 0.011, L5: 0.106, L6: 0.204, L7: 0.011, L8: 0.102, L9: 0.195, L10: 0.010, L11: 0.102
+2026-05-10 18:58:08,382 INFO    :  -->>[003/003][050/197][Time Left: 00:00:43] Average Loss: 0.120922, L0: 0.295, L1: 0.013, L2: 0.136, L3: 0.231, L4: 0.012, L5: 0.120, L6: 0.205, L7: 0.011, L8: 0.113, L9: 0.193, L10: 0.010, L11: 0.113
+2026-05-10 18:58:11,385 INFO    :  -->>[003/003][060/197][Time Left: 00:00:40] Average Loss: 0.114222, L0: 0.276, L1: 0.012, L2: 0.124, L3: 0.223, L4: 0.011, L5: 0.107, L6: 0.201, L7: 0.010, L8: 0.101, L9: 0.194, L10: 0.010, L11: 0.101
+2026-05-10 18:58:14,322 INFO    :  -->>[003/003][070/197][Time Left: 00:00:37] Average Loss: 0.121929, L0: 0.307, L1: 0.012, L2: 0.131, L3: 0.240, L4: 0.012, L5: 0.116, L6: 0.210, L7: 0.011, L8: 0.108, L9: 0.200, L10: 0.010, L11: 0.107
+2026-05-10 18:58:17,231 INFO    :  -->>[003/003][080/197][Time Left: 00:00:34] Average Loss: 0.109953, L0: 0.272, L1: 0.012, L2: 0.121, L3: 0.214, L4: 0.011, L5: 0.106, L6: 0.185, L7: 0.011, L8: 0.099, L9: 0.179, L10: 0.010, L11: 0.099
+2026-05-10 18:58:20,066 INFO    :  -->>[003/003][090/197][Time Left: 00:00:31] Average Loss: 0.119557, L0: 0.286, L1: 0.013, L2: 0.133, L3: 0.230, L4: 0.012, L5: 0.116, L6: 0.205, L7: 0.011, L8: 0.112, L9: 0.196, L10: 0.010, L11: 0.111
+2026-05-10 18:58:23,005 INFO    :  -->>[003/003][100/197][Time Left: 00:00:28] Average Loss: 0.111266, L0: 0.264, L1: 0.012, L2: 0.127, L3: 0.206, L4: 0.011, L5: 0.112, L6: 0.187, L7: 0.010, L8: 0.108, L9: 0.180, L10: 0.010, L11: 0.107
+2026-05-10 18:58:25,944 INFO    :  -->>[003/003][110/197][Time Left: 00:00:25] Average Loss: 0.112349, L0: 0.278, L1: 0.012, L2: 0.119, L3: 0.212, L4: 0.011, L5: 0.104, L6: 0.200, L7: 0.011, L8: 0.100, L9: 0.191, L10: 0.010, L11: 0.099
+2026-05-10 18:58:28,835 INFO    :  -->>[003/003][120/197][Time Left: 00:00:22] Average Loss: 0.111737, L0: 0.263, L1: 0.013, L2: 0.136, L3: 0.202, L4: 0.012, L5: 0.116, L6: 0.185, L7: 0.011, L8: 0.107, L9: 0.180, L10: 0.010, L11: 0.107
+2026-05-10 18:58:31,761 INFO    :  -->>[003/003][130/197][Time Left: 00:00:19] Average Loss: 0.108978, L0: 0.262, L1: 0.012, L2: 0.120, L3: 0.213, L4: 0.011, L5: 0.103, L6: 0.189, L7: 0.011, L8: 0.098, L9: 0.181, L10: 0.010, L11: 0.097
+2026-05-10 18:58:34,501 INFO    :  -->>[003/003][140/197][Time Left: 00:00:16] Average Loss: 0.105225, L0: 0.241, L1: 0.012, L2: 0.126, L3: 0.193, L4: 0.011, L5: 0.107, L6: 0.177, L7: 0.010, L8: 0.102, L9: 0.171, L10: 0.010, L11: 0.102
+2026-05-10 18:58:37,357 INFO    :  -->>[003/003][150/197][Time Left: 00:00:13] Average Loss: 0.118574, L0: 0.294, L1: 0.012, L2: 0.128, L3: 0.232, L4: 0.011, L5: 0.113, L6: 0.203, L7: 0.011, L8: 0.109, L9: 0.192, L10: 0.010, L11: 0.108
+2026-05-10 18:58:40,204 INFO    :  -->>[003/003][160/197][Time Left: 00:00:10] Average Loss: 0.114703, L0: 0.287, L1: 0.012, L2: 0.128, L3: 0.219, L4: 0.011, L5: 0.110, L6: 0.198, L7: 0.011, L8: 0.103, L9: 0.185, L10: 0.010, L11: 0.102
+2026-05-10 18:58:43,064 INFO    :  -->>[003/003][170/197][Time Left: 00:00:07] Average Loss: 0.107632, L0: 0.258, L1: 0.013, L2: 0.124, L3: 0.202, L4: 0.012, L5: 0.107, L6: 0.181, L7: 0.011, L8: 0.103, L9: 0.170, L10: 0.010, L11: 0.102
+2026-05-10 18:58:45,835 INFO    :  -->>[003/003][180/197][Time Left: 00:00:04] Average Loss: 0.102238, L0: 0.254, L1: 0.012, L2: 0.111, L3: 0.198, L4: 0.011, L5: 0.096, L6: 0.174, L7: 0.010, L8: 0.092, L9: 0.167, L10: 0.010, L11: 0.091
+2026-05-10 18:58:48,512 INFO    :  -->>[003/003][190/197][Time Left: 00:00:01] Average Loss: 0.110492, L0: 0.285, L1: 0.012, L2: 0.118, L3: 0.212, L4: 0.011, L5: 0.103, L6: 0.188, L7: 0.010, L8: 0.099, L9: 0.181, L10: 0.010, L11: 0.098
+2026-05-10 18:58:50,113 INFO    :  -->>[003/003][196/197][Time Left: 00:00:00] Average Loss: 0.114557, L0: 0.275, L1: 0.013, L2: 0.127, L3: 0.225, L4: 0.012, L5: 0.110, L6: 0.200, L7: 0.011, L8: 0.103, L9: 0.189, L10: 0.010, L11: 0.102
+2026-05-10 18:58:50,266 INFO    : Train/Epoch: 3/3, Average total time cost per iteration in this epoch: 0.302510
+2026-05-10 18:58:50,266 INFO    : Train/Epoch: 3/3, Average loading data time cost per iteration in this epoch: 0.019623
+2026-05-10 18:58:50,266 INFO    : Train/Epoch: 3/3, Average training model time cost per iteration in this epoch: 0.282887
+2026-05-10 18:58:50,266 INFO    : Train/Epoch: 3/3, Average Loss in this epoch: 0.112949
+2026-05-10 18:58:50,266 INFO    : Train/Loss000 in this epoch: 0.274597
+2026-05-10 18:58:50,266 INFO    : Train/Loss001 in this epoch: 0.012348
+2026-05-10 18:58:50,266 INFO    : Train/Loss002 in this epoch: 0.125491
+2026-05-10 18:58:50,266 INFO    : Train/Loss003 in this epoch: 0.215576
+2026-05-10 18:58:50,266 INFO    : Train/Loss004 in this epoch: 0.011380
+2026-05-10 18:58:50,266 INFO    : Train/Loss005 in this epoch: 0.109118
+2026-05-10 18:58:50,266 INFO    : Train/Loss006 in this epoch: 0.193824
+2026-05-10 18:58:50,266 INFO    : Train/Loss007 in this epoch: 0.010584
+2026-05-10 18:58:50,266 INFO    : Train/Loss008 in this epoch: 0.103695
+2026-05-10 18:58:50,266 INFO    : Train/Loss009 in this epoch: 0.185622
+2026-05-10 18:58:50,266 INFO    : Train/Loss010 in this epoch: 0.010084
+2026-05-10 18:58:50,266 INFO    : Train/Loss011 in this epoch: 0.103065
+2026-05-10 18:58:50,282 INFO    : Forward process, Dataset size: 688, Batch size: 32
+  0%|          | 0/22 [00:00<?, ?it/s]  5%|▍         | 1/22 [00:04<01:30,  4.33s/it]  9%|▉         | 2/22 [00:04<00:36,  1.84s/it] 18%|█▊        | 4/22 [00:04<00:13,  1.37it/s] 27%|██▋       | 6/22 [00:04<00:06,  2.39it/s] 36%|███▋      | 8/22 [00:04<00:03,  3.61it/s] 45%|████▌     | 10/22 [00:04<00:02,  4.99it/s] 55%|█████▍    | 12/22 [00:05<00:01,  6.48it/s] 64%|██████▎   | 14/22 [00:05<00:01,  7.96it/s] 73%|███████▎  | 16/22 [00:05<00:00,  9.38it/s] 82%|████████▏ | 18/22 [00:05<00:00,  9.23it/s] 91%|█████████ | 20/22 [00:05<00:00, 10.52it/s]100%|██████████| 22/22 [00:05<00:00,  3.68it/s]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  0 in this epoch: [NME 0.036158, FR 0.143900, AUC 0.322135]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  1 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  2 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  3 in this epoch: [NME 0.031339, FR 0.081400, AUC 0.393594]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  4 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  5 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  6 in this epoch: [NME 0.029893, FR 0.068300, AUC 0.416637]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  7 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  8 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric  9 in this epoch: [NME 0.029137, FR 0.062500, AUC 0.429481]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric 10 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,319 INFO    : Val_net/Metric 11 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:58:56,331 INFO    : Forward process, Dataset size: 688, Batch size: 32
+  0%|          | 0/22 [00:00<?, ?it/s]  5%|▍         | 1/22 [00:03<01:19,  3.78s/it]  9%|▉         | 2/22 [00:03<00:32,  1.64s/it] 14%|█▎        | 3/22 [00:04<00:18,  1.04it/s] 18%|█▊        | 4/22 [00:04<00:11,  1.59it/s] 23%|██▎       | 5/22 [00:04<00:07,  2.18it/s] 32%|███▏      | 7/22 [00:04<00:03,  3.78it/s] 41%|████      | 9/22 [00:04<00:02,  5.28it/s] 50%|█████     | 11/22 [00:04<00:01,  6.91it/s] 59%|█████▉    | 13/22 [00:04<00:01,  8.50it/s] 68%|██████▊   | 15/22 [00:05<00:00,  9.94it/s] 77%|███████▋  | 17/22 [00:05<00:00, 11.07it/s] 86%|████████▋ | 19/22 [00:05<00:00, 12.09it/s] 95%|█████████▌| 21/22 [00:05<00:00, 12.82it/s]100%|██████████| 22/22 [00:05<00:00,  3.88it/s]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  0 in this epoch: [NME 0.036159, FR 0.142400, AUC 0.322363]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  1 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  2 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  3 in this epoch: [NME 0.031035, FR 0.081400, AUC 0.399457]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  4 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  5 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  6 in this epoch: [NME 0.029372, FR 0.065400, AUC 0.426188]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  7 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  8 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric  9 in this epoch: [NME 0.028732, FR 0.059600, AUC 0.436995]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric 10 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val_net_ema/Metric 11 in this epoch: [NME nan, FR nan, AUC nan]
+2026-05-10 18:59:02,062 INFO    : Val/Best_Metric009 in this epoch: 0.028698
+2026-05-10 18:59:02,280 INFO    : Epoch: 3/3, model saved in this epoch
+2026-05-10 18:59:02,281 INFO    : Train/Epoch: 3/3, Learning rate decays to [0.0001], [Time Left: 00:00:00]eval_time: 12.15, 
+
+
+2026-05-10 18:59:02,281 INFO    : Training finished
