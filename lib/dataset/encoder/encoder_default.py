@@ -22,11 +22,13 @@ class encoder_default:
             point = copy.deepcopy(points[i])
             point[0] = max(0, min(w - 1, point[0]))
             point[1] = max(0, min(h - 1, point[1]))
+            # 以真实关键点为中心画高斯响应：中心最亮，越远响应越弱，作为热力图监督标签。
             pointmap = self._circle(pointmap, point, sigma=self.sigma)
 
             pointmaps.append(pointmap)
         pointmaps = np.stack(pointmaps, axis=0) / 255.0
         pointmaps = torch.from_numpy(pointmaps).float().unsqueeze(0)
+        # 网络输出热力图分辨率通常低于输入图像，这里按 scale 缩放到监督所需尺寸。
         pointmaps = F.interpolate(pointmaps, size=(int(w * self.scale), int(h * self.scale)), mode='bilinear',
                                   align_corners=False).squeeze()
         return pointmaps

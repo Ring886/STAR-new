@@ -127,27 +127,31 @@ class Hourglass(nn.Module):
         self.up1 = Block(f, f)
 
         # Lower branch
+        # 下分支先降采样扩大感受野，用来捕捉整张脸的结构关系。
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         self.low1 = Block(f, nf)
         self.n = n
         # Recursive hourglass
         if self.n > 1:
+            # Hourglass 递归嵌套：不断从 64x64 到 32x32、16x16 等尺度提取更全局的特征。
             self.low2 = Hourglass(n=n - 1, f=nf, increase=increase, up_mode=up_mode, add_coord=False)
         else:
             self.low2 = Block(nf, nf)
         self.low3 = Block(nf, f)
+        # 上采样把低分辨率的全局特征恢复到当前尺度，便于和局部细节融合。
         self.up2 = nn.Upsample(scale_factor=2, mode=up_mode)
 
     def forward(self, x, heatmap=None):
         if self.coordconv is not None:
             x = self.coordconv(x, heatmap)
-        up1 = self.up1(x)
+        up1 = self.up1(x)  # 保留当前分辨率下的局部细节。
         pool1 = self.pool1(x)
         low1 = self.low1(pool1)
         low2 = self.low2(low1)
         low3 = self.low3(low2)
         up2 = self.up2(low3)
+        # up1 和 up2 形状一致，逐元素相加实现“局部细节 + 全局结构”的融合。
         return up1 + up2
 
 
@@ -272,6 +276,7 @@ class StackedHGNetV1(nn.Module):
         y, fusionmaps = [], []
         heatmaps = None
         for i in range(self.nstack):
+            # 多个 Hourglass 串联：前一阶段的预测会反馈给后一阶段，逐步细化关键点热力图。
             hg = self.hgs[i](x, heatmap=heatmaps)
             feature = self.features[i](hg)
 
@@ -283,6 +288,7 @@ class StackedHGNetV1(nn.Module):
                 pointmaps = self.pointmap_act(pointmaps0)
                 edgemaps0 = self.out_edgemaps[i](feature)
                 edgemaps = self.edgemap_act(edgemaps0)
+                # 用边缘图和点图形成结构 mask，再约束关键点热力图，减少只看孤立点的问题。
                 mask = self.e2h_transform(edgemaps) * pointmaps
                 fusion_heatmaps = mask * heatmaps
             else:
@@ -291,6 +297,7 @@ class StackedHGNetV1(nn.Module):
             landmarks = self.decoder.get_coords_from_heatmap(fusion_heatmaps)
 
             if i < self.nstack - 1:
+                # 将当前阶段的特征和预测热力图融合回主干特征，供下一阶段继续修正。
                 x = x + self.merge_features[i](feature) + \
                     self.merge_heatmaps[i](heatmaps)
                 if self.cfg.use_AAM:

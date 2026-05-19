@@ -28,6 +28,7 @@ def apply_fine_tune_strategy(net, strategy):
     if strategy != "heads_only":
         raise ValueError("Unknown fine_tune_strategy: %s" % strategy)
 
+    # 保守微调策略：冻结主干特征提取部分，只训练输出头和融合层，减少对作者原模型的破坏。
     frozen_prefixes = ("pre", "hgs", "features")
     trainable_prefixes = (
         "out_heatmaps",
@@ -160,6 +161,7 @@ def train_worker(world_rank, world_size, nodes_size, args):
                 if config.logger is not None:
                     config.logger.warning("Resumed optimizer/scheduler state from epoch %d." % start_epoch)
             else:
+                # 默认只加载网络权重，不恢复旧优化器/学习率状态，更适合作为新的少轮次微调实验。
                 start_epoch = 0
                 if config.logger is not None:
                     config.logger.warning("Fine-tune mode: optimizer/scheduler are freshly initialized; start_epoch=0.")

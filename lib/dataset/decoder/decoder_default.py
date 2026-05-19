@@ -29,8 +29,10 @@ class decoder_default:
         yy = yy.view(1, 1, h, w).to(heatmap)
         xx = xx.view(1, 1, h, w).to(heatmap)
 
+        # 对每个关键点的整张二维热力图求和；[2,3] 分别对应高和宽两个空间维度。
         heatmap_sum = torch.clamp(heatmap.sum([2, 3]), min=1e-6)
 
+        # 用热力图响应作为权重，对坐标网格做加权平均，得到连续的关键点坐标。
         yy_coord = (yy * heatmap).sum([2, 3]) / heatmap_sum  # batch x npoints
         xx_coord = (xx * heatmap).sum([2, 3]) / heatmap_sum  # batch x npoints
         coords = torch.stack([xx_coord, yy_coord], dim=-1)

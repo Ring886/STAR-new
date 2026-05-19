@@ -66,6 +66,7 @@ class Alignment(Base):
 
         # COFW
         if self.data_definition == "COFW":
+            # COFW 数据集采用 29 点标注；这里把关键点按眉毛、眼睛、鼻子、嘴唇等结构组织，供 AAM 辅助边缘监督使用。
             self.edge_info = (
                 (True, (0, 4, 2, 5)),  # RightEyebrow
                 (True, (1, 6, 3, 7)),  # LeftEyebrow
@@ -83,6 +84,7 @@ class Alignment(Base):
                 self.nme_right_index = 17  # pupil
             else:
                 raise NotImplementedError
+            # [关键点热力图数量, 边缘图数量, 点图数量]；模型输出通道数和标签 reshape 都依赖这个配置。
             self.classes_num = [29, 7, 29]
             self.crop_op = True
             self.flip_mapping = (
@@ -91,6 +93,7 @@ class Alignment(Base):
             self.image_dir = osp.join(self.image_dir, 'COFW')
         # 300W
         elif self.data_definition == "300W":
+            # 300W 数据集采用通用 68 点人脸标注格式：轮廓、眉毛、鼻子、眼睛、外嘴唇、内嘴唇。
             self.edge_info = (
                 (False, (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)),  # FaceContour
                 (False, (17, 18, 19, 20, 21)),  # RightEyebrow
@@ -110,6 +113,7 @@ class Alignment(Base):
                 self.nme_right_index = [42, 43, 44, 45, 46, 47]  # pupil
             else:
                 raise NotImplementedError
+            # [关键点热力图数量, 边缘图数量, 点图数量]；68 决定每张图预测 68 个关键点热力图。
             self.classes_num = [68, 9, 68]
             self.crop_op = True
             self.flip_mapping = (

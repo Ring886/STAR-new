@@ -129,9 +129,11 @@ class STARLoss_v2(nn.Module):
         # normalize
         bs, npoints, h, w = heatmap.shape
         heatmap_sum = torch.clamp(heatmap.sum([2, 3]), min=1e-6)
+        # 先把预测热力图归一化成类似概率分布，后续才能从分布中计算均值和方向性。
         heatmap = heatmap / heatmap_sum.view(bs, npoints, 1, 1)
 
         means = self.weighted_mean(heatmap)  # [bs, 68, 2]
+        # 协方差描述热力图在空间上的拉伸方向和分散程度，用于刻画语义模糊方向。
         covars = self.unbiased_weighted_covariance(heatmap, means)  # covars [bs, 68, 2, 2]
 
         # TODO: GPU-based eigen-decomposition
@@ -146,8 +148,10 @@ class STARLoss_v2(nn.Module):
 
         # STAR Loss
         # Ambiguity-guided Decomposition
+        # 将坐标误差投影到热力图主方向上：模糊方向和非模糊方向采用不同的误差约束。
         loss_trans = self.ambiguity_guided_decompose(groundtruth - means, evalues, evectors)
         # Eigenvalue Restriction
+        # 限制特征值，避免模型把热力图无限扩散来逃避定位误差。
         loss_eigen = self.eigenvalue_restriction(evalues, bs, npoints)
         star_loss = loss_trans + self.w * loss_eigen
 

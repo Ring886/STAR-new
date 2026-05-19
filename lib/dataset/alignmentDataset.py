@@ -35,6 +35,7 @@ class AlignmentDataset(Dataset):
         self.encoder = get_encoder(height, width, encoder_type=encoder_type)
         self.items = pd.read_csv(tsv_flie, sep="\t")
         self.image_dir = image_dir
+        # 关键点数量来自 conf/alignment.py 中的 classes_num[0]，如 300W=68、COFW=29。
         self.landmark_num = classes_num[0]
         self.transform = transform
 
@@ -290,6 +291,7 @@ class AlignmentDataset(Dataset):
 
         # augmentation
         # landmarks_target = [-0.5, edge-0.5]
+        # 训练/测试都先把人脸裁剪对齐到统一 256x256 坐标系，后续热力图监督才有一致空间基准。
         img, landmarks_target, matrix = \
             self.augmentation.process(img, landmarks_target, landmarks_5pts, scale, center_w, center_h)
 
@@ -298,6 +300,7 @@ class AlignmentDataset(Dataset):
         sample["label"] = [landmarks, ]
 
         if self.use_AAM:
+            # AAM 辅助监督：除关键点坐标外，同时生成点图和边缘图，让模型学习五官结构关系。
             pointmap = self.encoder.generate_heatmap(landmarks_target)
             edgemap = self._generate_edgemap(landmarks_target)
             sample["label"] += [pointmap, edgemap]
