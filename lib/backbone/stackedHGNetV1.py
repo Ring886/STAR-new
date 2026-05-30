@@ -1,3 +1,4 @@
+# Stacked Hourglass 模型主体，输入裁剪归一化后的人脸图像，输出关键点热力图并解码为坐标。
 import numpy as np
 
 import torch
@@ -271,6 +272,7 @@ class StackedHGNetV1(nn.Module):
         self.inference = inference
 
     def forward(self, x):
+        # 先用前置卷积/残差块把输入图片变成特征图，后续 Hourglass 都在特征图上预测关键点。
         x = self.pre(x)
 
         y, fusionmaps = [], []
@@ -280,6 +282,8 @@ class StackedHGNetV1(nn.Module):
             hg = self.hgs[i](x, heatmap=heatmaps)
             feature = self.features[i](hg)
 
+            # 每个通道对应一个关键点的热力图：响应越高，表示该关键点越可能在该位置。
+            # 生成热力图，用卷积预测的
             heatmaps0 = self.out_heatmaps[i](feature)
             heatmaps = self.heatmap_act(heatmaps0)
 
@@ -294,6 +298,7 @@ class StackedHGNetV1(nn.Module):
             else:
                 fusion_heatmaps = heatmaps
 
+            # 从热力图到坐标的关键步骤：decoder 对热力图做加权平均，得到归一化的 (x, y)。
             landmarks = self.decoder.get_coords_from_heatmap(fusion_heatmaps)
 
             if i < self.nstack - 1:

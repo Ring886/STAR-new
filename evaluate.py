@@ -1,3 +1,4 @@
+# 测试集评估入口，读取 test.tsv 和图片，调用模型预测关键点，并与 ground truth 比较计算 NME。
 import os
 import cv2
 import math
@@ -141,10 +142,12 @@ class Alignment:
             return ((points + 1) * torch.tensor([self.input_size, self.input_size]).to(points).view(1, 1, 2) - 1) / 2
 
     def preprocess(self, image, scale, center_w, center_h):
+        # 评估时也先按 test.tsv 提供的中心和尺度，把人脸裁剪到统一 256x256 输入。
         matrix = self.getCropMatrix.process(scale, center_w, center_h)
         input_tensor = self.transformPerspective.process(image, matrix)
         input_tensor = input_tensor[np.newaxis, :]
 
+        # HWC/BGR -> NCHW，并把像素值归一化到 [-1,1]，和训练阶段保持一致。
         input_tensor = torch.from_numpy(input_tensor)
         input_tensor = input_tensor.float().permute(0, 3, 1, 2)
         input_tensor = input_tensor / 255.0 * 2.0 - 1.0
@@ -155,6 +158,7 @@ class Alignment:
         # dstPoints = self.transformPoints2D.process(srcPoints, coeff)
         # matrix^(-1) * src = dst
         # src = matrix * dst
+        # 将预测点从裁剪图坐标系映射回原图坐标系，才能和 test.tsv 中的 ground truth 比较。
         dstPoints = np.zeros(srcPoints.shape, dtype=np.float32)
         for i in range(srcPoints.shape[0]):
             dstPoints[i][0] = coeff[0][0] * srcPoints[i][0] + coeff[0][1] * srcPoints[i][1] + coeff[0][2]
@@ -166,11 +170,13 @@ class Alignment:
 
         if self.dl_framework == "pytorch":
             with torch.no_grad():
+                # 模型输出的是“由热力图解码后的关键点坐标”，不是直接读取标注文件。
                 output = self.alignment(input_tensor)
             landmarks = output[-1][0]
         else:
             assert False
 
+        # 模型输出先还原到 256x256 裁剪图，再通过逆矩阵回到原图。
         landmarks = self.denorm_points(landmarks)
         landmarks = landmarks.data.cpu().numpy()[0]
         landmarks = self.postprocess(landmarks, np.linalg.inv(matrix))
@@ -221,10 +227,12 @@ def evaluate(args, model_path, metadata_path, device_ids, mode):
         scale, center_w, center_h = float(scale), float(center_w), float(center_h)
 
         image = cv2.imread(image_path)
+        # 对每张测试图执行完整预测流程，得到预测关键点 landmarks_pv。
         landmarks_pv = alignment.analyze(image, scale, center_w, center_h)
 
         # NME
         if mode == "nme":
+            # 将预测点与人工标注 ground truth 比较，按眼间距归一化后得到 NME。
             nme = NME(landmarks_gt, landmarks_pv)
             nme_sum += nme
             # print("Current NME(%d): %f" % (k + 1, (nme_sum / (k + 1))))

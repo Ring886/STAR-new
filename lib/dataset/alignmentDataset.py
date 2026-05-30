@@ -1,3 +1,4 @@
+# 数据集读取与预处理模块，读取 tsv/图片/关键点，完成裁剪对齐、归一化和训练标签生成。
 import os
 import sys
 import cv2
@@ -69,6 +70,7 @@ class AlignmentDataset(Dataset):
             flip_rate=0.5,
             flip_mapping=flip_mapping,
             random_shift_sigma=0.05,
+            # 训练阶段的小角度旋转增强：18 度是弧度制写法，用来提升模型对轻微歪斜人脸的鲁棒性；不是 90/180 度旋转矫正。
             random_rot_sigma=math.pi / 180 * 18,
             random_scale_sigma=0.1,
             random_gray_rate=0.2,

@@ -17,6 +17,7 @@ class Augmentation:
                  flip_rate=0.5,
                  flip_mapping=None,
                  random_shift_sigma=0.05,
+                 # 默认随机旋转标准差约 18 度，只覆盖小角度姿态扰动，不能等同于大角度方向校正。
                  random_rot_sigma=math.pi/180*18,
                  random_scale_sigma=0.1,
                  random_gray_rate=0.2,
@@ -193,6 +194,7 @@ class GetRandomGeometryMatrix:
            self.scale_config[:2] != (1.0, 0.0):
             shift_xy = self._random(self.shift_config, size=[2]) * \
                 min(to_h, to_w)
+            # 从 rot_config 中采样本次增强的旋转角度；训练时图像和关键点会使用同一个矩阵同步旋转。
             rot_angle = self._random(self.rot_config)
             scale = self._random(self.scale_config)
             matrix_geoaug = self._compose_rotate_and_scale(

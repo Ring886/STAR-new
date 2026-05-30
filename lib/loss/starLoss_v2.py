@@ -1,3 +1,4 @@
+# STARLoss_v2 损失函数，利用热力图形状估计不确定性方向，更合理约束轮廓点和遮挡点。
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

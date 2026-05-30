@@ -1,3 +1,4 @@
+# 训练阶段的标签编码器，把人工标注关键点坐标转换成高斯热力图监督信号。
 import copy
 import numpy as np
 

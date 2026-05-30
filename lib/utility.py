@@ -1,3 +1,4 @@
+# 项目工具调度层，负责读取配置、创建模型/数据加载器/损失函数/指标，并串联训练和测试流程。
 import json
 import os.path as osp
 import time

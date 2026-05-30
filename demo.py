@@ -1,3 +1,4 @@
+# 单张图片/少量图片的可视化入口，加载模型预测人脸关键点，并把预测坐标画成绿色点。
 import os
 import cv2
 import copy
@@ -152,10 +153,12 @@ class Alignment:
             return ((points + 1) * torch.tensor([self.input_size, self.input_size]).to(points).view(1, 1, 2) - 1) / 2
 
     def preprocess(self, image, scale, center_w, center_h):
+        # 1）根据人脸中心和尺度生成裁剪矩阵，把原图中的脸对齐到统一的 256x256 输入坐标系。
         matrix = self.getCropMatrix.process(scale, center_w, center_h)
         input_tensor = self.transformPerspective.process(image, matrix)
         input_tensor = input_tensor[np.newaxis, :]
 
+        # 2）把 OpenCV 读到的 HWC/BGR 图像转成 PyTorch 的 NCHW 张量，并把像素归一化到 [-1, 1]。
         input_tensor = torch.from_numpy(input_tensor)
         input_tensor = input_tensor.float().permute(0, 3, 1, 2)
         input_tensor = input_tensor / 255.0 * 2.0 - 1.0
@@ -166,6 +169,7 @@ class Alignment:
         # dstPoints = self.transformPoints2D.process(srcPoints, coeff)
         # matrix^(-1) * src = dst
         # src = matrix * dst
+        # 这里用裁剪矩阵的逆矩阵，把 256x256 裁剪图上的预测点映射回原始图片坐标。
         dstPoints = np.zeros(srcPoints.shape, dtype=np.float32)
         for i in range(srcPoints.shape[0]):
             dstPoints[i][0] = coeff[0][0] * srcPoints[i][0] + coeff[0][1] * srcPoints[i][1] + coeff[0][2]
@@ -177,11 +181,13 @@ class Alignment:
 
         if self.dl_framework == "pytorch":
             with torch.no_grad():
+                # 3）模型前向：Stacked Hourglass 输出热力图，并在网络内部解码成归一化关键点坐标。
                 output = self.alignment(input_tensor)
             landmarks = output[-1][0]
         else:
             assert False
 
+        # 4）先从 [-1,1] 归一化坐标还原到 256x256 裁剪图坐标，再映射回原图坐标。
         landmarks = self.denorm_points(landmarks)
         landmarks = landmarks.data.cpu().numpy()[0]
         landmarks = self.postprocess(landmarks, np.linalg.inv(matrix))
@@ -201,6 +207,7 @@ def draw_pts(img, pts, mode="pts", shift=4, color=(0, 255, 0), radius=2, thickne
                 # 此处来回切换是因为opencv的bug
                 img_draw = cv2.cvtColor(img_draw, cv2.COLOR_BGR2RGB)
                 img_draw = cv2.cvtColor(img_draw, cv2.COLOR_RGB2BGR)
+            # 5）绿色点只是可视化：把模型预测出来的原图坐标画成圆点，方便验收时直观看效果。
             cv2.circle(img_draw, (int(p[0] * (1 << shift)), int(p[1] * (1 << shift))), radius << shift, color, -1,
                        cv2.LINE_AA, shift=shift)
         else:
@@ -212,9 +219,8 @@ def draw_pts(img, pts, mode="pts", shift=4, color=(0, 255, 0), radius=2, thickne
     return img_draw
 
 
-def process(input_image):
+def process(input_image, draw_radius=1):
     image_draw = copy.deepcopy(input_image)
-    draw_radius = max(2, int(round(max(input_image.shape[0], input_image.shape[1]) / 512.0)))
     dets = detector(input_image, 1)
 
     num_faces = len(dets)
@@ -224,6 +230,7 @@ def process(input_image):
 
     results = []
     for detection in dets:
+        # dlib 的 68 点只用来估计人脸区域，帮助计算裁剪中心和尺度；最终绿色点不是 dlib 结果。
         face = sp(input_image, detection)
         shape = []
         for i in range(68):
@@ -239,6 +246,7 @@ def process(input_image):
         center_h = (y2 + y1) / 2
 
         scale, center_w, center_h = float(scale), float(center_w), float(center_h)
+        # 真正的人脸关键点预测入口：内部会完成裁剪、模型热力图预测、坐标解码和映射回原图。
         landmarks_pv = alignment.analyze(input_image, scale, center_w, center_h)
         results.append(landmarks_pv)
         image_draw = draw_pts(image_draw, landmarks_pv, radius=draw_radius)
@@ -253,6 +261,7 @@ if __name__ == '__main__':
     cli_parser.add_argument("--device_ids", type=str, default="0")
     cli_parser.add_argument("--my_image_path", type=str, default="/path/to/face/image/bald_guys.jpg")
     cli_parser.add_argument("--out_image_path", type=str, default="out_image.png")
+    cli_parser.add_argument("--draw_radius", type=int, default=1, help="green landmark point radius in pixels")
     cli_parser.add_argument("--enable_logging", action="store_true")
     cli_args = cli_parser.parse_args()
 
@@ -291,7 +300,7 @@ if __name__ == '__main__':
     image = cv2.imread(my_image_path)
     if image is None:
         raise FileNotFoundError(my_image_path)
-    image_draw, results = process(image)
+    image_draw, results = process(image, draw_radius=cli_args.draw_radius)
     out_dir = os.path.dirname(out_image_path)
     if out_dir:
         os.makedirs(out_dir, exist_ok=True)
