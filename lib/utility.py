@@ -52,6 +52,7 @@ def get_dataset(config, tsv_file, image_dir, loader_type, is_train):
             config.edge_info,
             config.flip_mapping,
             is_train,
+            use_AAM=config.use_AAM,
             encoder_type=config.encoder_type
         )
     else:

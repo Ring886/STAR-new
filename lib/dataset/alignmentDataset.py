@@ -28,10 +28,11 @@ class AlignmentDataset(Dataset):
                  width=256, height=256, channels=3,
                  means=(127.5, 127.5, 127.5), scale=1 / 127.5,
                  classes_num=None, crop_op=True, aug_prob=0.0, edge_info=None, flip_mapping=None, is_train=True,
+                 use_AAM=True,
                  encoder_type='default',
                  ):
         super(AlignmentDataset, self).__init__()
-        self.use_AAM = True
+        self.use_AAM = use_AAM
         self.encoder_type = encoder_type
         self.encoder = get_encoder(height, width, encoder_type=encoder_type)
         self.items = pd.read_csv(tsv_flie, sep="\t")
