@@ -226,6 +226,8 @@ class Alignment(Base):
         str = ''
         str += '{}_{}x{}_{}_ep{}_lr{}_bs{}'.format(self.data_definition, self.height, self.width,
                                                    self.optimizer, self.max_epoch, self.learn_rate, self.batch_size)
+        if not self.add_coord:
+            str += '_noCoord'
         str += '_{}'.format(self.loss_func)
         str += '_{}_{}'.format(self.star_dist, self.star_w) if self.loss_func == 'STARLoss' else ''
         str += '_AAM' if self.use_AAM else ''

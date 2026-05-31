@@ -20,6 +20,12 @@ def add_base_options(parser):
     group.add_argument("--batch_size", type=int, default=128, help="the batch size in train process")
     group.add_argument('--width', type=int, default=256, help='the width of input image')
     group.add_argument('--height', type=int, default=256, help='the height of input image')
+    coord_group = group.add_mutually_exclusive_group()
+    coord_group.add_argument("--add_coord", dest="add_coord", action="store_true",
+                             help="enable CoordConv position encoding")
+    coord_group.add_argument("--no_add_coord", dest="add_coord", action="store_false",
+                             help="disable CoordConv position encoding for ablation")
+    group.set_defaults(add_coord=None)
 
 
 def add_train_options(parser):
