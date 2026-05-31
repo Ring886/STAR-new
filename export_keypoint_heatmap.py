@@ -1,4 +1,5 @@
 import argparse
+import base64
 import os
 
 import cv2
@@ -22,6 +23,29 @@ def normalize_to_uint8(arr):
     if max_value > 1e-6:
         arr = arr / max_value
     return (arr * 255).astype(np.uint8)
+
+
+def resize_heatmap_for_export(heatmap, size):
+    heatmap = heatmap.astype(np.float32)
+    heatmap = heatmap - heatmap.min()
+    max_value = heatmap.max()
+    if max_value > 1e-6:
+        heatmap = heatmap / max_value
+    resized = cv2.resize(heatmap, (size, size), interpolation=cv2.INTER_CUBIC)
+    resized = np.clip(resized, 0.0, 1.0)
+    return (resized * 255).astype(np.uint8)
+
+
+def write_png_svg(svg_path, png_path, width, height):
+    with open(png_path, "rb") as png_file:
+        encoded = base64.b64encode(png_file.read()).decode("ascii")
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+  <image width="{width}" height="{height}" href="data:image/png;base64,{encoded}"/>
+</svg>
+"""
+    with open(svg_path, "w", encoding="utf-8") as svg_file:
+        svg_file.write(svg)
 
 
 def get_face_geometry(image, predictor_path):
@@ -51,6 +75,7 @@ def main():
     parser.add_argument("--point_index", type=int, default=36, help="0-based landmark index")
     parser.add_argument("--stack_index", type=int, default=-1, help="Hourglass stack index; -1 means final stack")
     parser.add_argument("--out_dir", default="heatmap_exports")
+    parser.add_argument("--export_size", type=int, default=1024, help="side length for high-resolution heatmap exports")
     args = parser.parse_args()
 
     model_path = resolve_path(args.model_path)
@@ -81,6 +106,10 @@ def main():
     heatmap = heatmaps[args.point_index].detach().cpu().numpy()
     heatmap_u8 = normalize_to_uint8(heatmap)
     heatmap_color = cv2.applyColorMap(heatmap_u8, cv2.COLORMAP_JET)
+    heatmap_large = resize_heatmap_for_export(heatmap, args.export_size)
+    heatmap_large_color = cv2.applyColorMap(heatmap_large, cv2.COLORMAP_JET)
+    heatmap_large_rgba = cv2.cvtColor(heatmap_large_color, cv2.COLOR_BGR2BGRA)
+    heatmap_large_rgba[:, :, 3] = heatmap_large
 
     aligned_face = alignment.transformPerspective.process(image, matrix)
     heatmap_256 = cv2.resize(heatmap_u8, (aligned_face.shape[1], aligned_face.shape[0]), interpolation=cv2.INTER_CUBIC)
@@ -96,15 +125,27 @@ def main():
     color_path = os.path.join(out_dir, f"{prefix}_color.png")
     overlay_path = os.path.join(out_dir, f"{prefix}_overlay.png")
     crop_path = os.path.join(out_dir, f"{prefix}_aligned_face.png")
+    large_gray_path = os.path.join(out_dir, f"{prefix}_gray_{args.export_size}.png")
+    large_color_path = os.path.join(out_dir, f"{prefix}_color_{args.export_size}.png")
+    large_transparent_path = os.path.join(out_dir, f"{prefix}_transparent_{args.export_size}.png")
+    large_svg_path = os.path.join(out_dir, f"{prefix}_color_{args.export_size}.svg")
 
     cv2.imwrite(gray_path, heatmap_u8)
     cv2.imwrite(color_path, heatmap_color)
     cv2.imwrite(overlay_path, overlay)
     cv2.imwrite(crop_path, aligned_face)
+    cv2.imwrite(large_gray_path, heatmap_large)
+    cv2.imwrite(large_color_path, heatmap_large_color)
+    cv2.imwrite(large_transparent_path, heatmap_large_rgba)
+    write_png_svg(large_svg_path, large_color_path, args.export_size, args.export_size)
 
     print("Saved:")
     print(gray_path)
     print(color_path)
+    print(large_gray_path)
+    print(large_color_path)
+    print(large_transparent_path)
+    print(large_svg_path)
     print(overlay_path)
     print(crop_path)
     print("heatmap shape:", tuple(heatmaps.shape))
