@@ -26,6 +26,12 @@ def add_base_options(parser):
     coord_group.add_argument("--no_add_coord", dest="add_coord", action="store_false",
                              help="disable CoordConv position encoding for ablation")
     group.set_defaults(add_coord=None)
+    aam_group = group.add_mutually_exclusive_group()
+    aam_group.add_argument("--use_AAM", dest="use_AAM", action="store_true",
+                           help="enable AAM auxiliary supervision")
+    aam_group.add_argument("--no_use_AAM", dest="use_AAM", action="store_false",
+                           help="disable AAM auxiliary supervision for ablation")
+    group.set_defaults(use_AAM=None)
 
 
 def add_train_options(parser):

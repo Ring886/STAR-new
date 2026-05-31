@@ -230,7 +230,7 @@ class Alignment(Base):
             str += '_noCoord'
         str += '_{}'.format(self.loss_func)
         str += '_{}_{}'.format(self.star_dist, self.star_w) if self.loss_func == 'STARLoss' else ''
-        str += '_AAM' if self.use_AAM else ''
+        str += '_AAM' if self.use_AAM else '_noAAM'
         str += '_{}'.format(self.valset[:-4]) if self.valset != 'test.tsv' else ''
         str += '_{}'.format(self.id)
         return str

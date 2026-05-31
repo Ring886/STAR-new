@@ -45,6 +45,7 @@ IMAGE_DIR="${IMAGE_DIR:-./image_dir}"
 ANNOT_DIR="${ANNOT_DIR:-./annot_dir}"
 OUT_DIR="${OUT_DIR:-./out_dir}"
 ADD_COORD="${ADD_COORD:-0}"
+USE_AAM="${USE_AAM:-1}"
 DRY_RUN="${DRY_RUN:-0}"
 
 if [ ! -d "${IMAGE_DIR}/COFW" ]; then
@@ -62,6 +63,11 @@ if [ "${ADD_COORD}" = "1" ]; then
   COORD_FLAG="--add_coord"
 fi
 
+AAM_FLAG="--use_AAM"
+if [ "${USE_AAM}" = "0" ]; then
+  AAM_FLAG="--no_use_AAM"
+fi
+
 CMD=("${PYTHON_BIN}" main.py --mode=train
   --device_ids="${DEVICE_IDS}"
   --batch_size="${BATCH_SIZE}"
@@ -75,7 +81,8 @@ CMD=("${PYTHON_BIN}" main.py --mode=train
   --annot_dir="${ANNOT_DIR}"
   --data_definition=COFW
   --ckpt_dir="${OUT_DIR}"
-  "${COORD_FLAG}")
+  "${COORD_FLAG}"
+  "${AAM_FLAG}")
 
 echo "Starting COFW CoordConv ablation"
 echo "  GPU_COUNT=${GPU_COUNT:-manual}"
@@ -87,6 +94,7 @@ echo "  LEARN_RATE=${LEARN_RATE}"
 echo "  MAX_EPOCH=${MAX_EPOCH}"
 echo "  LOSS_FUNC=${LOSS_FUNC}"
 echo "  ADD_COORD=${ADD_COORD}"
+echo "  USE_AAM=${USE_AAM}"
 echo "  IMAGE_DIR=${IMAGE_DIR}"
 echo "  ANNOT_DIR=${ANNOT_DIR}"
 printf '  COMMAND='
