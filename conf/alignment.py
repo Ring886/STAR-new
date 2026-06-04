@@ -33,7 +33,7 @@ class Alignment(Base):
 
         # scheduler & optimizer
         self.milestones = [200, 350, 450]
-        self.max_epoch = 500
+        self.max_epoch = 100
         self.optimizer = "adam"
         self.learn_rate = 0.001
         self.weight_decay = 0.00001
