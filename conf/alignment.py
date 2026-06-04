@@ -54,7 +54,7 @@ class Alignment(Base):
         self.use_AAM = True
 
         # loss
-        self.loss_func = "STARLoss_v2"
+        self.loss_func = "smoothl1"
 
         # STAR Loss paras
         self.star_w = 1
