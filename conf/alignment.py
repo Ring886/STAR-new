@@ -50,7 +50,7 @@ class Alignment(Base):
 
         # tricks
         self.ema = True
-        self.add_coord = True
+        self.add_coord = False
         self.use_AAM = True
 
         # loss
