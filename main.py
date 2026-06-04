@@ -16,8 +16,8 @@ def add_base_options(parser):
     group.add_argument('--device_ids', type=str, default="0,1,2,3",
                        help="set device ids, -1 means use cpu device, >= 0 means use gpu device")
     group.add_argument('--data_definition', type=str, default='WFLW', help="COFW, 300W, WFLW")
-    group.add_argument('--learn_rate', type=float, default=0.001, help='learning rate')
-    group.add_argument("--batch_size", type=int, default=128, help="the batch size in train process")
+    group.add_argument('--learn_rate', type=float, default=None, help='learning rate')
+    group.add_argument("--batch_size", type=int, default=None, help="the batch size in train process")
     group.add_argument('--width', type=int, default=256, help='the width of input image')
     group.add_argument('--height', type=int, default=256, help='the height of input image')
 
@@ -25,7 +25,7 @@ def add_base_options(parser):
 def add_train_options(parser):
     group = parser.add_argument_group('train')
     group.add_argument("--train_num_workers", type=int, default=None, help="the num of workers in train process")
-    group.add_argument('--loss_func', type=str, default='STARLoss_v2', help="loss function")
+    group.add_argument('--loss_func', type=str, default=None, help="loss function")
     group.add_argument("--val_batch_size", type=int, default=None, help="the batch size in val process")
     group.add_argument("--val_num_workers", type=int, default=None, help="the num of workers in val process")
 
