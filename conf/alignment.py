@@ -41,7 +41,7 @@ class Alignment(Base):
         self.gamma = 0.1
 
         # batch_size & workers
-        self.batch_size = 32
+        self.batch_size = 64
         self.train_num_workers = 16
         self.val_batch_size = 32
         self.val_num_workers = 16
